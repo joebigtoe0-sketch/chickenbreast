@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>LAB CONTROL — $LABRAT</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+:root{
+  --bg:#050806;--panel:#0a0e0b;--panel-hi:#0e140f;--line:#17251b;--line-2:#101a13;
+  --text:#d6e6da;--dim:#75897c;--dim-2:#55685c;--green:#5cf06b;--green-soft:#8dfb96;
+  --green-deep:#1d6b2a;--lime:#86ff4d;--red:#ff3040;--gold:#ffc247;
+  --mono:"JetBrains Mono","IBM Plex Mono",Consolas,ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:radial-gradient(900px 500px at 50% -10%,rgba(92,240,107,.05),transparent 70%),var(--bg);
+  color:var(--text);font-family:var(--mono);font-size:13px;padding:26px 18px 60px;
+}
+.wrap{max-width:900px;margin:0 auto}
+h1{font-size:16px;letter-spacing:4px;color:var(--lime);margin:0 0 4px;text-shadow:0 0 16px rgba(134,255,77,.35)}
+.sub{font-size:10px;letter-spacing:2px;color:var(--dim-2);margin-bottom:22px}
+h2{font-size:10px;letter-spacing:2px;color:#9fbca7;margin:26px 0 9px;font-weight:400}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px}
+.card+.card{margin-top:10px}
+label{display:block;font-size:9px;letter-spacing:1.4px;color:#6f8175;margin:0 0 5px}
+input,textarea,select{
+  width:100%;background:#080c09;border:1px solid var(--line);border-radius:6px;
+  color:var(--text);padding:9px 11px;font:12px var(--mono);outline:none;
+}
+input:focus,textarea:focus{border-color:var(--green-deep);box-shadow:0 0 0 2px rgba(92,240,107,.08)}
+textarea{resize:vertical;line-height:1.7}
+.field{margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+button{
+  background:#101812;border:1px solid var(--line);border-radius:6px;color:#c3d4c8;
+  padding:10px 16px;font:12px var(--mono);letter-spacing:1.2px;cursor:pointer;transition:.15s;
+}
+button:hover{background:#16211a;border-color:#2c4433}
+button.go{border-color:rgba(92,240,107,.5);color:var(--green-soft)}
+button.go:hover{background:rgba(92,240,107,.12)}
+button.danger{border-color:#5a1c24;color:#ff8792}
+button.danger:hover{background:#1d0d10}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.msg{font-size:11px;letter-spacing:.5px;margin-left:4px}
+.ok{color:var(--green)}.err{color:var(--red)}.warn{color:var(--gold)}
+.hint{font-size:10px;color:var(--dim-2);line-height:1.7;margin-top:8px}
+.pill{
+  display:inline-flex;align-items:center;gap:7px;font-size:10px;letter-spacing:1.4px;
+  padding:5px 11px;border-radius:20px;border:1px solid var(--line);color:var(--dim);
+}
+.pill.on{border-color:var(--green-deep);color:var(--green)}
+.pill.live{border-color:#6b3a12;color:var(--gold)}
+.pill.off{border-color:#3a2126;color:#9a7b80}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.toggle{display:flex;align-items:center;gap:9px;font-size:11px;color:#b8cbbd;cursor:pointer;user-select:none}
+.toggle input{width:auto;margin:0;accent-color:#5cf06b}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{text-align:left;font-size:8.5px;letter-spacing:1.3px;color:#6f8175;font-weight:400;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:6px 8px;border-bottom:1px solid var(--line-2);color:#a9bdaf}
+td a{color:var(--green);text-decoration:none}
+.mono-log{
+  background:#070a08;border:1px solid var(--line-2);border-radius:6px;padding:10px;
+  height:200px;overflow:auto;font-size:10.5px;line-height:1.75;white-space:pre-wrap;
+}
+.mono-log .l-err{color:#ff8792}.mono-log .l-warn{color:var(--gold)}.mono-log .l-ok{color:var(--green)}.mono-log .l-info{color:#8ba398}
+.danger-note{
+  border-left:2px solid var(--gold);background:rgba(255,194,71,.05);
+  padding:10px 12px;font-size:10.5px;line-height:1.75;color:#c9b98f;border-radius:0 6px 6px 0;
+}
+#panel{display:none}
+.top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+a.back{font-size:10px;letter-spacing:1.5px;color:var(--dim);text-decoration:none}
+a.back:hover{color:var(--green)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-row">
+    <div>
+      <h1>◢ LAB CONTROL</h1>
+      <div class="sub">CONTRACT · WALLET · AUTO-BUYER</div>
+    </div>
+    <a class="back" href="/">← BACK TO THE LAB</a>
+  </div>
+
+  <div id="login" class="card">
+    <div class="field">
+      <label>ADMIN PASSWORD</label>
+      <input id="pw" type="password" autocomplete="current-password" placeholder="ADMIN_PASSWORD from .env">
+    </div>
+    <div class="row">
+      <button class="go" id="login-btn">ENTER</button>
+      <span class="msg" id="login-msg"></span>
+    </div>
+  </div>
+
+  <div id="panel">
+
+    <h2>TOKEN</h2>
+    <div class="card">
+      <div class="field">
+        <label>CONTRACT ADDRESS (pump.fun mint)</label>
+        <input id="ca" placeholder="paste the mint address — every link and stat on the site follows it">
+      </div>
+      <div class="grid3">
+        <div class="field"><label>NAME</label><input id="tokenName"></div>
+        <div class="field"><label>SYMBOL (no $)</label><input id="tokenSymbol"></div>
+        <div class="field"><label>TAGLINE</label><input id="tagline"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>CAM LABEL</label><input id="camLabel"></div>
+        <div class="field"><label>VIDEO URL (or /media/lab.mp4)</label><input id="videoUrl"></div>
+      </div>
+      <div class="field"><label>ABOUT TITLE</label><input id="aboutTitle"></div>
+      <div class="field"><label>ABOUT BODY (line breaks are kept)</label><textarea id="aboutBody" rows="3"></textarea></div>
+      <div class="field"><label>PHASE LINE (footer)</label><input id="phaseLabel"></div>
+      <div class="row">
+        <button class="go" id="save-token">SAVE</button>
+        <span class="msg" id="token-msg"></span>
+      </div>
+    </div>
+
+    <h2>WALLET — THE AUTO-BUYER SPENDS FROM HERE</h2>
+    <div class="card">
+      <div class="danger-note">
+        This key can move funds. It is stored on the server in <code>data/wallet.json</code> and is never
+        sent back to any page. Use a BURNER wallet holding only what the buyer should spend, and only open
+        this panel over https or on localhost — a plain-http admin page hands the key to the network.
+      </div>
+      <div class="row" style="margin:14px 0 12px">
+        <span class="pill" id="wallet-pill"><span class="dot"></span><span id="wallet-state">NO KEY INSTALLED</span></span>
+        <span class="msg" id="wallet-addr"></span>
+      </div>
+      <div class="field">
+        <label>PRIVATE KEY — base58 (Phantom export) or [1,2,3,...] JSON array</label>
+        <input id="secret" type="password" autocomplete="off" placeholder="paste, save, and it disappears from this box">
+      </div>
+      <div class="row">
+        <button class="go" id="save-wallet">INSTALL KEY</button>
+        <button class="danger" id="clear-wallet">REMOVE KEY</button>
+        <span class="msg" id="wallet-msg"></span>
+      </div>
+    </div>
+
+    <h2>AUTO-BUYER</h2>
+    <div class="card">
+      <div class="row" style="margin-bottom:14px">
+        <span class="pill" id="ab-pill"><span class="dot"></span><span id="ab-state">OFF</span></span>
+        <span class="msg" id="ab-stats"></span>
+      </div>
+      <div class="row" style="margin-bottom:14px;gap:22px">
+        <label class="toggle"><input type="checkbox" id="ab-enabled"> RUN THE BUYER</label>
+        <label class="toggle"><input type="checkbox" id="ab-dry"> DRY RUN (no real transaction)</label>
+      </div>
+      <div class="grid4">
+        <div class="field"><label>SOL PER BUY</label><input id="ab-amount" type="number" step="0.001"></div>
+        <div class="field"><label>MIN INTERVAL (s)</label><input id="ab-min" type="number"></div>
+        <div class="field"><label>MAX INTERVAL (s)</label><input id="ab-max" type="number"></div>
+        <div class="field"><label>DAILY CAP (SOL)</label><input id="ab-cap" type="number" step="0.01"></div>
+      </div>
+      <div class="grid4">
+        <div class="field"><label>MIN MARKET CAP ($)</label><input id="ab-minmc" type="number"></div>
+        <div class="field"><label>MAX TOKEN AGE (s)</label><input id="ab-age" type="number"></div>
+        <div class="field"><label>MAX OPEN POSITIONS</label><input id="ab-maxpos" type="number"></div>
+        <div class="field"><label>KEEP RESERVE (SOL)</label><input id="ab-reserve" type="number" step="0.001"></div>
+      </div>
+      <div class="grid4">
+        <div class="field"><label>TAKE PROFIT (%)</label><input id="ab-tp" type="number"></div>
+        <div class="field"><label>STOP LOSS (% down)</label><input id="ab-sl" type="number"></div>
+        <div class="field"><label>BUY SLIPPAGE %</label><input id="ab-slip" type="number"></div>
+        <div class="field"><label>SELL SLIPPAGE %</label><input id="ab-sellslip" type="number"></div>
+      </div>
+      <div class="grid4">
+        <div class="field"><label>PRIORITY FEE (µlamports)</label><input id="ab-fee" type="number"></div>
+      </div>
+      <div class="row">
+        <button class="go" id="save-ab">APPLY</button>
+        <span class="msg" id="ab-msg"></span>
+      </div>
+      <div class="hint">
+        Picks a coin off the live feed and buys it, then holds until take profit or stop loss. The market cap
+        floor is checked ON-CHAIN at buy time, so a coin that launched fine and died ten seconds later is
+        skipped — the feed's own market cap is the price at creation and tells you nothing. Every curve opens
+        at the same price in SOL, so the launch market cap in dollars follows SOL/USD (about $2,550 at SOL $91,
+        about $4,200 at SOL $150): a floor just above launch means "not dumped", higher demands real buying,
+        and a floor set for a different SOL price rejects everything. If nothing passes, the log says what the
+        best coin on the feed was worth. P&amp;L is measured
+        as sellback value against what was paid, fees and exit impact included, so +70% means +70% in the
+        wallet. Dry run does all of it on paper, including the exits. The daily cap resets at UTC midnight;
+        the reserve is SOL the buyer never dips into so fees always clear.
+      </div>
+    </div>
+
+    <h2>OPEN POSITIONS</h2>
+    <div class="card">
+      <div class="row" style="margin-bottom:12px">
+        <span class="pill" id="pos-pill"><span class="dot"></span><span id="pos-state">NOTHING OPEN</span></span>
+        <span class="msg" id="pos-stats"></span>
+      </div>
+      <table><thead><tr><th>TOKEN</th><th>AGE</th><th>COST</th><th>VALUE</th><th>P&amp;L</th><th>STATUS</th></tr></thead>
+      <tbody id="positions"><tr><td colspan="6" style="color:#55685c">nothing open</td></tr></tbody></table>
+      <div class="row" style="margin-top:14px">
+        <button class="danger" id="close-all">SELL EVERYTHING NOW</button>
+        <span class="msg" id="pos-msg"></span>
+      </div>
+      <div class="hint">Ignores take profit and stop loss and closes every open position at whatever it is worth right now.</div>
+    </div>
+
+    <h2>TEST BUY — ONE COIN, RIGHT NOW</h2>
+    <div class="card">
+      <div class="grid2">
+        <div class="field"><label>MINT</label><input id="tb-mint" placeholder="any pump.fun mint"></div>
+        <div class="field"><label>SOL</label><input id="tb-sol" type="number" step="0.001" value="0.01"></div>
+      </div>
+      <div class="row">
+        <button id="tb-go">SEND REAL BUY</button>
+        <span class="msg" id="tb-msg"></span>
+      </div>
+      <div class="hint">Ignores dry run and the daily cap. Proves the trade route works before you arm the loop.</div>
+    </div>
+
+    <h2>RECENT BUYS</h2>
+    <div class="card">
+      <table><thead><tr><th>TIME</th><th>TOKEN</th><th>SOL</th><th>MODE</th><th>RESULT</th></tr></thead>
+      <tbody id="trades"><tr><td colspan="5" style="color:#55685c">nothing yet</td></tr></tbody></table>
+    </div>
+
+    <h2>SERVER LOG</h2>
+    <div class="card"><div class="mono-log" id="log"></div></div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+// a comma decimal (fi-FI keyboards) must not reach the server as NaN
+const numv = (id) => String($(id).value).trim().replace(",", ".");
+let token = sessionStorage.getItem("labtoken") || "";
+let timer = null;
+
+async function api(path, opts = {}) {
+  const res = await fetch(path, {
+    ...opts,
+    headers: { "content-type": "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}), ...(opts.headers || {}) },
+  });
+  const body = await res.json().catch(() => ({}));
+  if (res.status === 401) {
+    token = "";
+    sessionStorage.removeItem("labtoken");
+    show(false);
+    throw new Error("session expired — log in again");
+  }
+  if (!res.ok) throw new Error(body.error || `http ${res.status}`);
+  return body;
+}
+
+function flash(el, text, cls = "ok") {
+  el.className = `msg ${cls}`;
+  el.textContent = text;
+  setTimeout(() => { if (el.textContent === text) el.textContent = ""; }, 4500);
+}
+
+function show(loggedIn) {
+  // #panel is display:none in the stylesheet, so "" would fall back to hidden
+  $("login").style.display = loggedIn ? "none" : "block";
+  $("panel").style.display = loggedIn ? "block" : "none";
+  if (loggedIn) {
+    refresh();
+    clearInterval(timer);
+    timer = setInterval(refresh, 6000);
+  } else {
+    clearInterval(timer);
+  }
+}
+
+/* ------------------------------------------------------------- login --- */
+async function login() {
+  const msg = $("login-msg");
+  try {
+    const r = await api("/api/admin/login", { method: "POST", body: JSON.stringify({ password: $("pw").value }) });
+    token = r.token;
+    sessionStorage.setItem("labtoken", token);
+    $("pw").value = "";
+    msg.textContent = "";
+    show(true);
+  } catch (e) {
+    flash(msg, e.message, "err");
+  }
+}
+$("login-btn").addEventListener("click", login);
+$("pw").addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
+
+/* ------------------------------------------------------------ render --- */
+let dirty = false;
+for (const id of ["ca","tokenName","tokenSymbol","tagline","camLabel","videoUrl","aboutTitle","aboutBody","phaseLabel"]) {
+  document.addEventListener("input", (e) => { if (e.target.id === id) dirty = true; });
+}
+
+async function refresh() {
+  let s;
+  try {
+    s = await api("/api/admin/state");
+  } catch {
+    return;
+  }
+  const c = s.config;
+
+  // don't clobber half-typed edits on the 6s poll
+  if (!dirty) {
+    $("ca").value = c.contractAddress || "";
+    $("tokenName").value = c.tokenName || "";
+    $("tokenSymbol").value = c.tokenSymbol || "";
+    $("tagline").value = c.tagline || "";
+    $("camLabel").value = c.camLabel || "";
+    $("videoUrl").value = c.videoUrl || "";
+    $("aboutTitle").value = c.aboutTitle || "";
+    $("aboutBody").value = c.aboutBody || "";
+    $("phaseLabel").value = c.phaseLabel || "";
+  }
+
+  // wallet
+  const pill = $("wallet-pill");
+  if (s.wallet.address) {
+    pill.className = "pill on";
+    $("wallet-state").textContent = "KEY INSTALLED";
+    $("wallet-addr").className = "msg";
+    $("wallet-addr").textContent = `${s.wallet.address}  ·  ${s.wallet.balanceSol.toFixed(4)} SOL`;
+  } else {
+    pill.className = "pill off";
+    $("wallet-state").textContent = "NO KEY INSTALLED";
+    $("wallet-addr").textContent = "";
+  }
+
+  // autobuy
+  const a = s.autobuy;
+  const p = $("ab-pill");
+  p.className = `pill ${a.enabled ? (a.dryRun ? "on" : "live") : "off"}`;
+  $("ab-state").textContent = a.enabled ? (a.dryRun ? "RUNNING — DRY" : "RUNNING — LIVE MONEY") : "OFF";
+  $("ab-stats").textContent = a.dryRun
+    ? `${a.paperToday} SOL of paper buys today · cap untouched in dry run${a.inFlight ? " · buying…" : ""}`
+    : `spent today ${a.spentToday} SOL · ${a.budgetLeft} SOL left in cap${a.inFlight ? " · buying…" : ""}`;
+  if (document.activeElement?.id?.startsWith("ab-") !== true) {
+    $("ab-enabled").checked = a.enabled;
+    $("ab-dry").checked = a.dryRun;
+    $("ab-amount").value = c.autobuy.amountSol;
+    $("ab-min").value = c.autobuy.minIntervalS;
+    $("ab-max").value = c.autobuy.maxIntervalS;
+    $("ab-cap").value = c.autobuy.dailyCapSol;
+    $("ab-reserve").value = c.autobuy.reserveSol;
+    $("ab-slip").value = c.autobuy.slippagePct;
+    $("ab-fee").value = c.autobuy.priorityFeeMicroLamports;
+    $("ab-age").value = c.autobuy.maxAgeS;
+    $("ab-minmc").value = c.autobuy.minMcUsd;
+    $("ab-maxpos").value = c.autobuy.maxOpenPositions;
+    $("ab-tp").value = c.autobuy.takeProfitPct;
+    $("ab-sl").value = c.autobuy.stopLossPct;
+    $("ab-sellslip").value = c.autobuy.sellSlippagePct;
+  }
+
+  renderPositions(s.positions);
+
+  // trades
+  const tb = $("trades");
+  tb.innerHTML = s.trades.length
+    ? s.trades
+        .map((t) => {
+          const time = new Date(t.ts).toLocaleTimeString();
+          const res = t.ok
+            ? t.sig
+              ? `<a href="https://solscan.io/tx/${t.sig}" target="_blank" rel="noopener">${t.sig.slice(0, 10)}…</a>`
+              : "<span style='color:#75897c'>simulated</span>"
+            : `<span style="color:#ff8792">${(t.error || "failed").slice(0, 70)}</span>`;
+          return `<tr><td>${time}</td><td>$${t.symbol || "?"}</td><td>${t.sol}</td><td>${t.dryRun ? "dry" : "live"}</td><td>${res}</td></tr>`;
+        })
+        .join("")
+    : `<tr><td colspan="5" style="color:#55685c">nothing yet</td></tr>`;
+
+  // log
+  const box = $("log");
+  const atBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 30;
+  box.innerHTML = s.log
+    .map((l) => {
+      const t = new Date(l.ts).toLocaleTimeString();
+      const cls = l.level === "err" ? "l-err" : l.level === "warn" ? "l-warn" : l.level === "ok" ? "l-ok" : "l-info";
+      const safe = `${l.tag}] ${l.msg}`.replace(/[<>&]/g, (ch) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" })[ch]);
+      return `<span class="${cls}">${t} [${safe}</span>`;
+    })
+    .join("\n");
+  if (atBottom) box.scrollTop = box.scrollHeight;
+}
+
+function renderPositions(p) {
+  if (!p) return;
+  const s = p.summary;
+  const pill = $("pos-pill");
+  pill.className = `pill ${s.open ? "on" : "off"}`;
+  $("pos-state").textContent = s.open ? `${s.open} OPEN` : "NOTHING OPEN";
+  const un = s.unrealisedSol >= 0 ? `+${s.unrealisedSol}` : String(s.unrealisedSol);
+  const re = s.realisedSol >= 0 ? `+${s.realisedSol}` : String(s.realisedSol);
+  $("pos-stats").textContent =
+    `${s.exposureSol} SOL at risk · ${un} SOL unrealised · closed ${s.closed} (${s.wins}W/${s.losses}L, ${re} SOL)` +
+    `${s.stuck ? ` · ${s.stuck} STUCK` : ""} · TP +${s.takeProfitPct}% / SL -${Math.abs(s.stopLossPct)}%`;
+
+  const rows = p.list.filter((x) => x.status !== "closed");
+  $("positions").innerHTML = rows.length
+    ? rows
+        .map((x) => {
+          const mins = Math.max(0, Math.round((Date.now() - x.openedAt) / 60000));
+          const pnl = x.pnlPct ?? 0;
+          const col = pnl >= 0 ? "#5cf06b" : "#ff8792";
+          const status = x.status === "stuck" ? `<span style="color:#ff8792">STUCK</span>` : x.dryRun ? "paper" : "live";
+          return `<tr><td>${x.symbol}</td><td>${mins}m</td><td>${x.costSol}</td><td>${(x.valueSol ?? 0).toFixed(4)}</td>` +
+                 `<td style="color:${col}">${pnl >= 0 ? "+" : ""}${pnl.toFixed(1)}%</td><td>${status}</td></tr>`;
+        })
+        .join("")
+    : `<tr><td colspan="6" style="color:#55685c">nothing open</td></tr>`;
+}
+
+/* ------------------------------------------------------------ actions --- */
+$("save-token").addEventListener("click", async () => {
+  try {
+    await api("/api/admin/config", {
+      method: "POST",
+      body: JSON.stringify({
+        contractAddress: $("ca").value,
+        tokenName: $("tokenName").value,
+        tokenSymbol: $("tokenSymbol").value.replace(/^\$/, ""),
+        tagline: $("tagline").value,
+        camLabel: $("camLabel").value,
+        videoUrl: $("videoUrl").value,
+        aboutTitle: $("aboutTitle").value,
+        aboutBody: $("aboutBody").value,
+        phaseLabel: $("phaseLabel").value,
+      }),
+    });
+    dirty = false;
+    flash($("token-msg"), "saved — the site updated live");
+    refresh();
+  } catch (e) {
+    flash($("token-msg"), e.message, "err");
+  }
+});
+
+$("save-wallet").addEventListener("click", async () => {
+  const secret = $("secret").value.trim();
+  if (!secret) return flash($("wallet-msg"), "paste a key first", "err");
+  try {
+    const r = await api("/api/admin/wallet", { method: "POST", body: JSON.stringify({ secret }) });
+    $("secret").value = "";
+    flash($("wallet-msg"), `installed ${r.address.slice(0, 8)}…`);
+    refresh();
+  } catch (e) {
+    flash($("wallet-msg"), e.message, "err");
+  }
+});
+
+$("clear-wallet").addEventListener("click", async () => {
+  if (!confirm("Remove the stored private key from the server?")) return;
+  try {
+    await api("/api/admin/wallet", { method: "DELETE" });
+    flash($("wallet-msg"), "key removed", "warn");
+    refresh();
+  } catch (e) {
+    flash($("wallet-msg"), e.message, "err");
+  }
+});
+
+$("save-ab").addEventListener("click", async () => {
+  const live = $("ab-enabled").checked && !$("ab-dry").checked;
+  if (live && !confirm("Arm the buyer with REAL SOL?\n\nIt will keep buying random coins off the live feed until you turn it off.")) return;
+  try {
+    await api("/api/admin/autobuy", {
+      method: "POST",
+      body: JSON.stringify({
+        enabled: $("ab-enabled").checked,
+        dryRun: $("ab-dry").checked,
+        amountSol: numv("ab-amount"),
+        minIntervalS: numv("ab-min"),
+        maxIntervalS: numv("ab-max"),
+        dailyCapSol: numv("ab-cap"),
+        reserveSol: numv("ab-reserve"),
+        slippagePct: numv("ab-slip"),
+        priorityFeeMicroLamports: numv("ab-fee"),
+        maxAgeS: numv("ab-age"),
+        minMcUsd: numv("ab-minmc"),
+        maxOpenPositions: numv("ab-maxpos"),
+        takeProfitPct: numv("ab-tp"),
+        stopLossPct: numv("ab-sl"),
+        sellSlippagePct: numv("ab-sellslip"),
+      }),
+    });
+    flash($("ab-msg"), "applied");
+    refresh();
+  } catch (e) {
+    flash($("ab-msg"), e.message, "err");
+  }
+});
+
+$("close-all").addEventListener("click", async () => {
+  if (!confirm("Sell EVERY open position right now, at whatever it is worth?")) return;
+  flash($("pos-msg"), "closing…", "warn");
+  try {
+    const r = await api("/api/admin/positions/close-all", { method: "POST" });
+    flash($("pos-msg"), `closed ${r.closed}`);
+    refresh();
+  } catch (e) {
+    flash($("pos-msg"), e.message, "err");
+  }
+});
+
+$("tb-go").addEventListener("click", async () => {
+  const mint = $("tb-mint").value.trim();
+  const sol = numv("tb-sol");
+  if (!confirm(`Send a real ${sol} SOL buy for ${mint.slice(0, 8)}…?`)) return;
+  flash($("tb-msg"), "sending…", "warn");
+  try {
+    const r = await api("/api/admin/testbuy", { method: "POST", body: JSON.stringify({ mint, sol }) });
+    flash($("tb-msg"), `landed on ${r.venue}: ${r.sig.slice(0, 14)}…`);
+    refresh();
+  } catch (e) {
+    flash($("tb-msg"), e.message, "err");
+  }
+});
+
+show(Boolean(token));
+</script>
+</body>
+</html>

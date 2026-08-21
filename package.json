@@ -1,0 +1,29 @@
+{
+  "name": "chickenbreast",
+  "version": "1.0.0",
+  "private": true,
+  "description": "$LABRAT — live lab dashboard for a pump.fun token: sensor feed, launch analysis feed, auto-buyer.",
+  "type": "module",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "engines": { "node": ">=20" },
+  "comment": "rpc-websockets (via @solana/web3.js) require()s uuid from a CJS build; npm resolves uuid@14 which is ESM-only and web3.js fails to import. Pin it to the last major that still ships CJS. (Same fix as bondbot.)",
+  "overrides": {
+    "rpc-websockets": { "uuid": "^11.1.0" }
+  },
+  "dependencies": {
+    "@pump-fun/pump-sdk": "^1.7.0",
+    "@pump-fun/pump-swap-sdk": "^1.9.0",
+    "@solana/spl-token": "^0.4.9",
+    "@solana/web3.js": "^1.95.4",
+    "bn.js": "^5.2.1",
+    "bs58": "^6.0.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "undici": "^6.19.8",
+    "ws": "^8.18.0"
+  }
+}

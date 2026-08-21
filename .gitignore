@@ -1,0 +1,11 @@
+node_modules/
+
+# Runtime state: the contract address, the wallet key, the position book.
+# NEVER commit this — data/wallet.json holds a private key.
+data/
+
+# Real secrets. .env.example is the template that IS committed.
+.env
+.env.local
+
+*.log
