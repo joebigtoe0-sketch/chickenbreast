@@ -50,7 +50,7 @@ const DEFAULTS = {
   aboutBody:
     "$LABRAT is a community driven experiment.\nWe don't follow the market, we test it.\n6 clips. 1 goal. Unlimited potential.",
   phaseLabel: "Experiment Phase 1: Neural Protein Interface... IN PROGRESS",
-  twitter: "",
+  twitter: "https://x.com/cbtonsol",
   telegram: "",
   // the lab has been running since first boot — sensor drift is anchored here
   experimentStart: Date.now(),

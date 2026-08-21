@@ -119,6 +119,14 @@ app.post("/api/admin/config", requireAdmin, (req, res) => {
     }
     patch.contractAddress = ca;
   }
+  // a bare handle is what people actually type; turn it into a link rather
+  // than rendering a button that goes nowhere
+  if (patch.twitter != null) {
+    const t = String(patch.twitter).trim().replace(/^@/, "");
+    const isUrl = t.toLowerCase().startsWith("http");
+    patch.twitter = !t || isUrl ? t : "https://x.com/" + t;
+  }
+
   const before = cfg.contractAddress;
   updateConfig(patch);
   if (cfg.contractAddress !== before) {

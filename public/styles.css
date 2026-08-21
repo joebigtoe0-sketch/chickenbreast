@@ -86,7 +86,29 @@ button{font-family:inherit;color:inherit}
 .btn-chart svg{width:16px;height:16px}
 .btn-chart:hover{background:#101812;border-color:#2c4433}
 .btn.disabled{opacity:.45;pointer-events:none}
-.topbar .btn-buy{margin-left:auto}
+.topbar-right{display:flex;align-items:stretch;gap:10px;margin-left:auto;height:40px}
+.social{
+  position:relative;overflow:hidden;
+  display:inline-flex;align-items:center;justify-content:center;
+  width:40px;flex:none;align-self:stretch;
+  border:1px solid rgba(92,240,107,.32);border-radius:6px;
+  background:rgba(92,240,107,.05);color:#cfe6d4;
+  transition:color .16s,border-color .16s,background .16s,box-shadow .16s,transform .06s;
+}
+.social svg{width:16px;height:16px;position:relative;z-index:1}
+.social:hover{
+  color:var(--lime);border-color:var(--green);
+  background:rgba(92,240,107,.13);
+  box-shadow:0 0 22px rgba(92,240,107,.22);
+}
+.social:active{transform:translateY(1px)}
+/* a light sweeping across on hover — same CRT idea as the cam overlay */
+.social::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 32%,rgba(134,255,77,.30) 50%,transparent 68%);
+  transform:translateX(-130%);
+}
+.social:hover::after{transform:translateX(130%);transition:transform .55s ease}
 
 /* ------------------------------------------------------------- layout --- */
 .grid{

@@ -74,6 +74,11 @@ function applyConfig(c) {
     el.classList.toggle("disabled", !c.contractAddress);
     el.title = c.contractAddress ? "buy on pump.fun" : "contract address not set yet";
   }
+  // the X link disappears rather than pointing nowhere when the field is blank
+  const x = $("x-link");
+  x.href = c.twitter || "#";
+  x.style.display = c.twitter ? "" : "none";
+
   const chart = $("chart-main");
   chart.href = c.chartUrl;
   chart.classList.toggle("disabled", !c.contractAddress);

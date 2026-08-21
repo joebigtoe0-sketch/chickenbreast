@@ -119,7 +119,10 @@ a.back:hover{color:var(--green)}
       </div>
       <div class="field"><label>ABOUT TITLE</label><input id="aboutTitle"></div>
       <div class="field"><label>ABOUT BODY (line breaks are kept)</label><textarea id="aboutBody" rows="3"></textarea></div>
-      <div class="field"><label>PHASE LINE (footer)</label><input id="phaseLabel"></div>
+      <div class="grid2">
+        <div class="field"><label>PHASE LINE (footer)</label><input id="phaseLabel"></div>
+        <div class="field"><label>X URL OR HANDLE (blank hides the button)</label><input id="twitter" placeholder="cbtonsol"></div>
+      </div>
       <div class="row">
         <button class="go" id="save-token">SAVE</button>
         <span class="msg" id="token-msg"></span>
@@ -321,7 +324,7 @@ $("pw").addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
 
 /* ------------------------------------------------------------ render --- */
 let dirty = false;
-for (const id of ["ca","tokenName","tokenSymbol","tagline","camLabel","videoUrl","aboutTitle","aboutBody","phaseLabel"]) {
+for (const id of ["ca","tokenName","tokenSymbol","tagline","camLabel","videoUrl","aboutTitle","aboutBody","phaseLabel","twitter"]) {
   document.addEventListener("input", (e) => { if (e.target.id === id) dirty = true; });
 }
 
@@ -345,6 +348,7 @@ async function refresh() {
     $("aboutTitle").value = c.aboutTitle || "";
     $("aboutBody").value = c.aboutBody || "";
     $("phaseLabel").value = c.phaseLabel || "";
+    $("twitter").value = c.twitter || "";
   }
 
   // wallet
@@ -479,6 +483,7 @@ $("save-token").addEventListener("click", async () => {
         aboutTitle: $("aboutTitle").value,
         aboutBody: $("aboutBody").value,
         phaseLabel: $("phaseLabel").value,
+        twitter: $("twitter").value,
       }),
     });
     dirty = false;
