@@ -334,7 +334,7 @@ td.unlocked{opacity:.62}
   display:inline-flex;align-items:center;justify-content:center;width:26px;height:22px;
   border:1px solid var(--line);border-radius:4px;color:var(--dim);font-size:11px;
 }
-.term:hover{color:var(--green);border-color:var(--green-deep)}
+
 
 /* --------------------------------------------------------------- toast --- */
 .toast{

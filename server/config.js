@@ -45,7 +45,7 @@ const DEFAULTS = {
   tokenSymbol: "LABRAT",
   tagline: "THE LAB TOKEN",
   videoUrl: "/media/lab.mp4",
-  camLabel: "LAB CAM 01 — NEURAL INTERFACE TEST",
+  camLabel: "LAB CAM 01 — CHICKEN BREAST TRENCHER",
   aboutTitle: "FUELING THE FUTURE. IN THE LAB.",
   aboutBody:
     "$LABRAT is a community driven experiment.\nWe don't follow the market, we test it.\n6 clips. 1 goal. Unlimited potential.",
