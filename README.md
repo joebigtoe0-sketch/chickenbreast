@@ -69,9 +69,18 @@ in memory, so a restart logs you out.
   bar follow it. `pump.fun/coin/<ca>` for BUY, `dexscreener.com/solana/<ca>` for
   CHART, copy button on the panel.
 - **Copy** — name, symbol, tagline, cam label, about text, footer phase line.
-- **Wallet** — paste a private key (base58 Phantom export or a `[1,2,3,...]`
-  array). It is written to `data/wallet.json` with mode 600 and never leaves the
-  server; the panel only ever shows the public key and balance.
+- **Wallet** — two sources, and **the environment always wins**:
+  - `WALLET_SECRET` (preferred when hosted): the key stays in the host's
+    variable store, never touches the volume, and is never typed into a public
+    web page. While it is set the panel shows `KEY FROM WALLET_SECRET` and
+    refuses to install or remove — an edit the next restart would discard is
+    worse than a refusal. Rotate by changing the variable.
+  - The panel itself: base58 (Phantom export) or a `[1,2,3,...]` array, written
+    to `data/wallet.json` mode 600.
+
+  Either way the secret never leaves the process — no route returns it, no
+  websocket frame carries it, and the panel only ever sees the pubkey and
+  balance.
 - **Auto-buyer** — the settings below.
 - **Test buy** — one manual buy, to prove the trade route works before arming
   anything.

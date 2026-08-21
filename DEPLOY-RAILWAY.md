@@ -26,18 +26,36 @@ fail and the deploy roll back.
    one. Without `HELIUS_API_KEY` the site still runs, but the holders tile shows
    a dash and RPC falls back to the public node.
 
-   Optional: `WALLET_SECRET` keeps the buyer's key in Railway's variable store
-   instead of on the volume. If you set it, you never paste a key into the web
-   panel at all — worth doing.
+3. **The buyer's wallet — use `WALLET_SECRET`.**
 
-3. **Volume** (service → Settings → Volumes): mount at **`/app/data`**.
+   ```
+   WALLET_SECRET=<base58 key from a Phantom export, or [1,2,3,...]>
+   ```
 
-   This holds the contract address, the wallet key, the position book, and the
-   holders history. Without it **every redeploy resets the contract address to
-   empty and forgets any open positions** — the site would come back up as a
+   This is the better of the two options. The key lives in Railway's variable
+   store, never lands on the volume, and is never typed into a page on the
+   public internet. The alternative — pasting it into `/admin` — sends the
+   secret across the network to a web form, which is a step worth not taking.
+
+   **The environment always wins.** While `WALLET_SECRET` is set the panel shows
+   `KEY FROM WALLET_SECRET` with the install and remove controls disabled, and
+   the API refuses both — better than accepting an edit that the next restart
+   would silently throw away. Rotate by changing the variable and redeploying;
+   go back to panel-managed by deleting it.
+
+   Use a **burner** funded with only what the bot may lose. The boot log names
+   the key that loaded:
+   `[wallet] key loaded from WALLET_SECRET: <pubkey>` — check it is the wallet
+   you meant before arming anything.
+
+4. **Volume** (service → Settings → Volumes): mount at **`/app/data`**.
+
+   This holds the contract address, the position book, and the holders history
+   (plus the wallet key, if you did not use `WALLET_SECRET`). Without it **every
+   redeploy resets the contract address to empty and forgets any open positions** — the site would come back up as a
    blank template mid-launch. This is the step people skip.
 
-4. **Networking** → Generate Domain. You get `https://<name>.up.railway.app`,
+5. **Networking** → Generate Domain. You get `https://<name>.up.railway.app`,
    with TLS, which is what makes the admin panel safe to use at all.
 
 ## After it is up
@@ -68,7 +86,8 @@ starts that way regardless of what your local config says. So:
 2. Leave the buyer in dry run for a while. Gold rows appear, positions open and
    close on paper, nothing is spent.
 3. Fund a **burner** wallet with only what the bot may lose.
-4. Install the key (variable or panel), then turn dry run off.
+4. Set `WALLET_SECRET`, redeploy, confirm the boot log names the right pubkey,
+   then turn dry run off.
 
 The daily cap, the reserve, and the max-open-positions limit are the only things
 bounding it after that. `SELL EVERYTHING NOW` in the panel closes the book.

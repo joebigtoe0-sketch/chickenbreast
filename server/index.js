@@ -10,7 +10,7 @@ import { startStats, getStats, onStats, refreshNow } from "./stats.js";
 import { startFeed, getFeed, onFeed, feedConnected } from "./feed.js";
 import { startAutobuy, autobuyStatus, getTrades, onTrade } from "./autobuy.js";
 import { startPositions, positionsSummary, getPositions, closeAll } from "./positions.js";
-import { loadWallet, setWalletSecret, clearWallet, walletPubkey, solBalance } from "./wallet.js";
+import { loadWallet, setWalletSecret, clearWallet, walletPubkey, solBalance, walletSource } from "./wallet.js";
 import { executeBuy } from "./pump.js";
 
 const app = express();
@@ -97,7 +97,7 @@ app.get("/api/admin/state", requireAdmin, async (_req, res) => {
   const pk = walletPubkey();
   res.json({
     config: cfg,
-    wallet: { address: pk?.toBase58() ?? null, balanceSol: pk ? await solBalance() : 0 },
+    wallet: { address: pk?.toBase58() ?? null, balanceSol: pk ? await solBalance() : 0, source: walletSource() },
     autobuy: autobuyStatus(),
     positions: { summary: positionsSummary(), list: getPositions(40) },
     trades: getTrades(30),
@@ -139,8 +139,12 @@ app.post("/api/admin/wallet", requireAdmin, (req, res) => {
 });
 
 app.delete("/api/admin/wallet", requireAdmin, (_req, res) => {
-  clearWallet();
-  res.json({ ok: true });
+  try {
+    clearWallet();
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(400).json({ error: String(e.message ?? e) });
+  }
 });
 
 app.post("/api/admin/autobuy", requireAdmin, (req, res) => {

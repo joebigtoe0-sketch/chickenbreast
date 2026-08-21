@@ -40,6 +40,8 @@ button{
   padding:10px 16px;font:12px var(--mono);letter-spacing:1.2px;cursor:pointer;transition:.15s;
 }
 button:hover{background:#16211a;border-color:#2c4433}
+button:disabled{opacity:.35;cursor:not-allowed;background:#101812;border-color:var(--line)}
+input:disabled{opacity:.5;cursor:not-allowed}
 button.go{border-color:rgba(92,240,107,.5);color:var(--green-soft)}
 button.go:hover{background:rgba(92,240,107,.12)}
 button.danger{border-color:#5a1c24;color:#ff8792}
@@ -127,13 +129,19 @@ a.back:hover{color:var(--green)}
     <h2>WALLET — THE AUTO-BUYER SPENDS FROM HERE</h2>
     <div class="card">
       <div class="danger-note">
-        This key can move funds. It is stored on the server in <code>data/wallet.json</code> and is never
-        sent back to any page. Use a BURNER wallet holding only what the buyer should spend, and only open
-        this panel over https or on localhost — a plain-http admin page hands the key to the network.
+        This key can move funds, and it is never sent back to any page. Use a BURNER wallet holding only what
+        the buyer should spend. Best practice when hosted: set <code>WALLET_SECRET</code> as a Railway variable
+        instead of pasting here — the key then lives in the variable store, never touches the volume, and never
+        travels to a web page at all. The environment always wins over anything saved here. If you do paste it,
+        do it over https or on localhost only.
       </div>
       <div class="row" style="margin:14px 0 12px">
         <span class="pill" id="wallet-pill"><span class="dot"></span><span id="wallet-state">NO KEY INSTALLED</span></span>
         <span class="msg" id="wallet-addr"></span>
+      </div>
+      <div class="hint" id="env-note" style="display:none;color:#8dfb96">
+        This wallet comes from the <code>WALLET_SECRET</code> environment variable, which takes precedence over
+        anything on disk. Change or remove it where it is set — Railway → service → Variables — then redeploy.
       </div>
       <div class="field">
         <label>PRIVATE KEY — base58 (Phantom export) or [1,2,3,...] JSON array</label>
@@ -323,9 +331,10 @@ async function refresh() {
 
   // wallet
   const pill = $("wallet-pill");
+  const fromEnv = s.wallet.source === "env";
   if (s.wallet.address) {
     pill.className = "pill on";
-    $("wallet-state").textContent = "KEY INSTALLED";
+    $("wallet-state").textContent = fromEnv ? "KEY FROM WALLET_SECRET" : "KEY ON DISK";
     $("wallet-addr").className = "msg";
     $("wallet-addr").textContent = `${s.wallet.address}  ·  ${s.wallet.balanceSol.toFixed(4)} SOL`;
   } else {
@@ -333,6 +342,14 @@ async function refresh() {
     $("wallet-state").textContent = "NO KEY INSTALLED";
     $("wallet-addr").textContent = "";
   }
+  // an env-pinned key cannot be changed from here, so don't pretend otherwise
+  $("save-wallet").disabled = fromEnv;
+  $("clear-wallet").disabled = fromEnv;
+  $("secret").disabled = fromEnv;
+  $("secret").placeholder = fromEnv
+    ? "managed by the WALLET_SECRET environment variable"
+    : "paste, save, and it disappears from this box";
+  $("env-note").style.display = fromEnv ? "block" : "none";
 
   // autobuy
   const a = s.autobuy;
