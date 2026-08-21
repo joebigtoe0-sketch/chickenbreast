@@ -122,6 +122,29 @@ function tick() {
 
 let last = { ts: Date.now(), runtimeH: 0, clips: [] };
 
+/**
+ * Start the experiment over: clock back to zero and the six clips back to their
+ * opening readings.
+ *
+ * These are one action, not two. The drift curves are all anchored on
+ * experimentStart, so moving the clock without re-seeding the clips would leave
+ * them sitting at 26°C slowly sagging back toward 22°C over the next minute —
+ * a fresh experiment that reads as a warm one. Snapping both is the honest
+ * reset, and the tick at the end puts the new numbers on every screen at once.
+ */
+export function resetExperiment() {
+  cfg.experimentStart = Date.now();
+  saveConfig();
+  clips.forEach((c, i) => {
+    c.temp = TEMP_START + TEMP_OFFSET[i];
+    c.hum = HUM_START + HUM_OFFSET[i];
+    c.mv = MV_MEAN[i];
+    c.locked = i < 3;
+  });
+  tick();
+  return cfg.experimentStart;
+}
+
 export const getSensors = () => last;
 export const onSensors = (fn) => listeners.push(fn);
 
@@ -131,6 +154,16 @@ export function startSensors() {
     cfg.experimentStart = Date.now();
     saveConfig();
   }
+  // Seed each clip where the drift says it should already BE. The clips are
+  // declared at their opening values, so without this a restart replays the
+  // warm-up — a breast 30 hours into the experiment would climb from 22°C back
+  // up to 26°C over the following minute, on every redeploy, in front of
+  // whoever happens to be watching.
+  const { t, hum } = targets();
+  clips.forEach((c, i) => {
+    c.temp = t + TEMP_OFFSET[i];
+    c.hum = hum + HUM_OFFSET[i];
+  });
   tick();
   setInterval(tick, TICK_MS);
 }

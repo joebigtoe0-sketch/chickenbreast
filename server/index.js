@@ -5,7 +5,7 @@ import { WebSocketServer } from "ws";
 import { PublicKey } from "@solana/web3.js";
 import { ROOT, cfg, env, publicConfig, updateConfig } from "./config.js";
 import { log } from "./log.js";
-import { startSensors, getSensors, onSensors } from "./sensors.js";
+import { startSensors, getSensors, onSensors, resetExperiment } from "./sensors.js";
 import { startStats, getStats, onStats, refreshNow } from "./stats.js";
 import { startFeed, getFeed, onFeed, feedConnected } from "./feed.js";
 import { startAutobuy, autobuyStatus, getTrades, onTrade } from "./autobuy.js";
@@ -127,6 +127,14 @@ app.post("/api/admin/config", requireAdmin, (req, res) => {
   }
   broadcast("config", publicConfig());
   res.json({ ok: true, config: cfg });
+});
+
+/** Restart the experiment: uptime to zero, clips back to opening readings. */
+app.post("/api/admin/reset-experiment", requireAdmin, (_req, res) => {
+  const at = resetExperiment();
+  log.warn("admin", "experiment clock reset — uptime back to zero, clips re-seeded");
+  broadcast("config", publicConfig());
+  res.json({ ok: true, experimentStart: at });
 });
 
 app.post("/api/admin/wallet", requireAdmin, (req, res) => {

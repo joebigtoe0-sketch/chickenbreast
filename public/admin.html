@@ -126,6 +126,24 @@ a.back:hover{color:var(--green)}
       </div>
     </div>
 
+    <h2>EXPERIMENT CLOCK</h2>
+    <div class="card">
+      <div class="row" style="margin-bottom:12px">
+        <span class="pill on"><span class="dot"></span><span id="uptime-val">—</span></span>
+        <span class="msg" id="uptime-since"></span>
+      </div>
+      <div class="row">
+        <button class="danger" id="reset-exp">RESET THE CLOCK</button>
+        <span class="msg" id="exp-msg"></span>
+      </div>
+      <div class="hint">
+        Puts EXPERIMENT UPTIME back to zero <em>and</em> returns the six clips to their opening readings
+        (about 22&nbsp;°C, 46% humidity), which then drift again from scratch. These cannot be separated —
+        the clock is what the sensor drift is measured from. Worth doing right before launch so the lab
+        does not read as though it has been running for days.
+      </div>
+    </div>
+
     <h2>WALLET — THE AUTO-BUYER SPENDS FROM HERE</h2>
     <div class="card">
       <div class="danger-note">
@@ -379,6 +397,16 @@ async function refresh() {
 
   renderPositions(s.positions);
 
+  // experiment clock
+  const started = c.experimentStart || Date.now();
+  const mins = Math.max(0, Math.floor((Date.now() - started) / 60000));
+  const d = Math.floor(mins / 1440);
+  const h = Math.floor((mins % 1440) / 60);
+  const m = mins % 60;
+  const pad = (n) => String(n).padStart(2, "0");
+  $("uptime-val").textContent = d > 0 ? `${d}d ${pad(h)}h ${pad(m)}m` : `${pad(h)}h ${pad(m)}m`;
+  $("uptime-since").textContent = `running since ${new Date(started).toLocaleString()}`;
+
   // trades
   const tb = $("trades");
   tb.innerHTML = s.trades.length
@@ -513,6 +541,19 @@ $("save-ab").addEventListener("click", async () => {
     refresh();
   } catch (e) {
     flash($("ab-msg"), e.message, "err");
+  }
+});
+
+$("reset-exp").addEventListener("click", async () => {
+  if (!confirm(`Reset the experiment clock?
+
+Uptime goes back to zero and all six clips snap back to their opening readings (~22 °C, 46%). Everyone watching the site sees it happen.`)) return;
+  try {
+    await api("/api/admin/reset-experiment", { method: "POST" });
+    flash($("exp-msg"), "clock reset — the lab starts over");
+    refresh();
+  } catch (e) {
+    flash($("exp-msg"), e.message, "err");
   }
 });
 
