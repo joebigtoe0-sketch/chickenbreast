@@ -50,8 +50,11 @@ button{font-family:inherit;color:inherit}
   position:sticky;top:0;z-index:40;
 }
 .logo{display:flex;align-items:center;gap:11px}
-.flask{width:31px;height:31px;color:var(--lime);filter:drop-shadow(0 0 9px rgba(134,255,77,.55))}
-.flask.big{width:40px;height:40px;flex:none}
+.logo-mark{
+  width:34px;height:34px;flex:none;border-radius:6px;object-fit:cover;display:block;
+  border:1px solid #1f3325;box-shadow:0 0 14px rgba(92,240,107,.16);
+}
+.logo-mark.big{width:44px;height:44px;border-radius:8px}
 .logo-text{display:flex;flex-direction:column;line-height:1}
 .logo-text b{
   font-size:22px;font-weight:700;letter-spacing:.5px;color:var(--lime);
