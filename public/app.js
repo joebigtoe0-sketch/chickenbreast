@@ -163,7 +163,7 @@ function drawSpark(points) {
   ctx.beginPath();
   ctx.moveTo(x(0), y(points[0]));
   for (let i = 1; i < points.length; i++) ctx.lineTo(x(i), y(points[i]));
-  ctx.strokeStyle = "#3fbe55";
+  ctx.strokeStyle = "#1f8a3b";
   ctx.lineWidth = 1.3;
   ctx.lineJoin = "round";
   ctx.stroke();
@@ -172,8 +172,8 @@ function drawSpark(points) {
   ctx.lineTo(0, h);
   ctx.closePath();
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "rgba(63,190,85,.22)");
-  g.addColorStop(1, "rgba(63,190,85,0)");
+  g.addColorStop(0, "rgba(31,138,59,.16)");
+  g.addColorStop(1, "rgba(31,138,59,0)");
   ctx.fillStyle = g;
   ctx.fill();
 }
@@ -289,7 +289,7 @@ function drawProbe(canvas, probe) {
   ctx.beginPath();
   ctx.moveTo(x(0), y(b[0]));
   for (let i = 1; i < b.length; i++) ctx.lineTo(x(i), y(b[i]));
-  ctx.strokeStyle = "#6fd982";
+  ctx.strokeStyle = "#1f8a3b";
   ctx.lineWidth = 1.3;
   ctx.lineJoin = "round";
   ctx.stroke();
@@ -298,8 +298,8 @@ function drawProbe(canvas, probe) {
   ctx.lineTo(0, h);
   ctx.closePath();
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "rgba(63,190,85,.22)");
-  g.addColorStop(1, "rgba(63,190,85,0)");
+  g.addColorStop(0, "rgba(31,138,59,.16)");
+  g.addColorStop(1, "rgba(31,138,59,0)");
   ctx.fillStyle = g;
   ctx.fill();
 }
@@ -331,11 +331,11 @@ function drawWaves() {
       const y = mid - buf[i] * amp;
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
-    ctx.strokeStyle = w.locked ? "#6fd982" : "#3d7a48";
+    ctx.strokeStyle = w.locked ? "#1f8a3b" : "#9bbd9f";
     ctx.lineWidth = 1.5;
     ctx.lineJoin = "round";
-    ctx.shadowColor = "rgba(63,190,85,.55)";
-    ctx.shadowBlur = w.locked ? 4 : 0;
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
     ctx.stroke();
     ctx.shadowBlur = 0;
   }
