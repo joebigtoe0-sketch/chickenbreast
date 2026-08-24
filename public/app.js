@@ -6,6 +6,12 @@
 
 const $ = (id) => document.getElementById(id);
 
+const PROBE_BUF = 180; // 3 minutes at 1Hz
+const probes = {
+  temp: { buf: [], canvas: null, minSpan: 1.2, unit: "°C" },
+  hum: { buf: [], canvas: null, minSpan: 3, unit: "%" },
+};
+
 const state = {
   config: null,
   stats: null,
@@ -14,8 +20,8 @@ const state = {
   rows: new Map(), // mint -> { el, anim }
 };
 
-const SAMPLES_PER_TICK = 4;
-const WAVE_BUF = 68;
+const SAMPLES_PER_TICK = 2; // must match server/sensors.js
+const WAVE_BUF = 34;
 // how long a row takes to climb to its confidence number (server/feed.js
 // mirrors this so the auto-buyer only picks rows that have settled)
 const ANALYSIS_MS = 10_000;
@@ -140,7 +146,7 @@ function drawSpark(points) {
   const dpr = window.devicePixelRatio || 1;
   const w = c.clientWidth || 260;
   const h = c.clientHeight || 26;
-  if (c.width !== w * dpr) {
+  if (c.width !== w * dpr || c.height !== h * dpr) {
     c.width = w * dpr;
     c.height = h * dpr;
   }
@@ -157,7 +163,7 @@ function drawSpark(points) {
   ctx.beginPath();
   ctx.moveTo(x(0), y(points[0]));
   for (let i = 1; i < points.length; i++) ctx.lineTo(x(i), y(points[i]));
-  ctx.strokeStyle = "#5cf06b";
+  ctx.strokeStyle = "#3fbe55";
   ctx.lineWidth = 1.3;
   ctx.lineJoin = "round";
   ctx.stroke();
@@ -166,8 +172,8 @@ function drawSpark(points) {
   ctx.lineTo(0, h);
   ctx.closePath();
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "rgba(92,240,107,.22)");
-  g.addColorStop(1, "rgba(92,240,107,0)");
+  g.addColorStop(0, "rgba(63,190,85,.22)");
+  g.addColorStop(1, "rgba(63,190,85,0)");
   ctx.fillStyle = g;
   ctx.fill();
 }
@@ -183,8 +189,6 @@ function buildSensorRows(clips) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td><span class="clip-cell"><span class="dot" data-dot></span>${c.id}</span></td>
-      <td data-temp>—</td>
-      <td data-hum>—</td>
       <td class="mv" data-mv>—</td>
       <td><canvas class="wave"></canvas></td>`;
     tbody.appendChild(tr);
@@ -210,8 +214,6 @@ function applySensors(p) {
     const w = state.waves.get(c.id);
     if (!w) continue;
     const tr = w.row;
-    tr.querySelector("[data-temp]").textContent = `${c.tempC.toFixed(1)} °C`;
-    tr.querySelector("[data-hum]").textContent = `${c.humidity}%`;
     tr.querySelector("[data-mv]").textContent = `${c.impulseMv >= 0 ? "+" : "-"}${Math.abs(c.impulseMv).toFixed(2).padStart(5, "0")} mV`;
     const dot = tr.querySelector("[data-dot]");
     dot.classList.toggle("red", !c.locked);
@@ -221,12 +223,85 @@ function applySensors(p) {
     while (w.buf.length > WAVE_BUF) w.buf.shift();
   }
 
+  // ---- the two enclosure probes, unrelated to the clips above ----
+  const ch = p.chamber;
+  if (ch) {
+    $("p-temp").textContent = ch.tempC.toFixed(1);
+    $("p-hum").textContent = ch.humidity.toFixed(1);
+    pushProbe(probes.temp, ch.tempC);
+    pushProbe(probes.hum, ch.humidity);
+    drawProbe($("temp-spark"), probes.temp);
+    drawProbe($("hum-spark"), probes.hum);
+    $("p-temp-note").innerHTML = `${trendWord(probes.temp, "WARMING", "COOLING")} · CEILING <b>${ch.tempCap} °C</b>`;
+    $("p-hum-note").innerHTML = `${trendWord(probes.hum, "RISING", "DRYING")} · FLOOR <b>${ch.humFloor} %</b>`;
+  }
+
   // uptime, from the same payload
   const h = p.runtimeH || 0;
   const days = Math.floor(h / 24);
   const hrs = Math.floor(h % 24);
   const mins = Math.floor((h * 60) % 60);
   $("uptime").textContent = days > 0 ? `${days}d ${String(hrs).padStart(2, "0")}h ${String(mins).padStart(2, "0")}m` : `${String(hrs).padStart(2, "0")}h ${String(mins).padStart(2, "0")}m`;
+}
+
+function pushProbe(probe, value) {
+  probe.buf.push(value);
+  while (probe.buf.length > PROBE_BUF) probe.buf.shift();
+}
+
+/** Which way the probe has moved over the last minute or so. */
+function trendWord(probe, up, down) {
+  const b = probe.buf;
+  if (b.length < 30) return "CALIBRATING";
+  const then = b[Math.max(0, b.length - 60)];
+  const delta = b[b.length - 1] - then;
+  const dead = probe.minSpan * 0.08; // ignore sensor noise
+  return delta > dead ? up : delta < -dead ? down : "STEADY";
+}
+
+/** Probe trend line. Autoscaled, but never below minSpan — otherwise a probe
+ *  sitting still would render its own noise as a mountain range. */
+function drawProbe(canvas, probe) {
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth || 160;
+  const h = canvas.clientHeight || 36;
+  if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+  }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  const b = probe.buf;
+  if (b.length < 2) return;
+
+  let min = Math.min(...b);
+  let max = Math.max(...b);
+  const mid = (min + max) / 2;
+  const span = Math.max(max - min, probe.minSpan);
+  min = mid - span / 2;
+  max = mid + span / 2;
+
+  const x = (i) => (i / (b.length - 1)) * w;
+  const y = (v) => h - 3 - ((v - min) / (max - min)) * (h - 6);
+
+  ctx.beginPath();
+  ctx.moveTo(x(0), y(b[0]));
+  for (let i = 1; i < b.length; i++) ctx.lineTo(x(i), y(b[i]));
+  ctx.strokeStyle = "#6fd982";
+  ctx.lineWidth = 1.3;
+  ctx.lineJoin = "round";
+  ctx.stroke();
+
+  ctx.lineTo(w, h);
+  ctx.lineTo(0, h);
+  ctx.closePath();
+  const g = ctx.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, "rgba(63,190,85,.22)");
+  g.addColorStop(1, "rgba(63,190,85,0)");
+  ctx.fillStyle = g;
+  ctx.fill();
 }
 
 /** Redraw every waveform, sliding the newest samples in from the right. */
@@ -238,7 +313,7 @@ function drawWaves() {
     const dpr = window.devicePixelRatio || 1;
     const cw = canvas.clientWidth || 150;
     const ch = canvas.clientHeight || 30;
-    if (canvas.width !== Math.round(cw * dpr)) {
+    if (canvas.width !== Math.round(cw * dpr) || canvas.height !== Math.round(ch * dpr)) {
       canvas.width = Math.round(cw * dpr);
       canvas.height = Math.round(ch * dpr);
     }
@@ -256,10 +331,10 @@ function drawWaves() {
       const y = mid - buf[i] * amp;
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
-    ctx.strokeStyle = w.locked ? "#7bf58a" : "#4d8f58";
-    ctx.lineWidth = 1.15;
+    ctx.strokeStyle = w.locked ? "#6fd982" : "#3d7a48";
+    ctx.lineWidth = 1.5;
     ctx.lineJoin = "round";
-    ctx.shadowColor = "rgba(92,240,107,.55)";
+    ctx.shadowColor = "rgba(63,190,85,.55)";
     ctx.shadowBlur = w.locked ? 4 : 0;
     ctx.stroke();
     ctx.shadowBlur = 0;
@@ -392,7 +467,7 @@ function markBought(item) {
   el.querySelector(".f-verdict").innerHTML = `${CHECK_SVG}BOUGHT${item.dryRun ? " (DRY)" : ""}`;
   animateConfidence(entry, 100, 1100);
   el.animate(
-    [{ boxShadow: "inset 0 0 0 rgba(255,194,71,0)" }, { boxShadow: "inset 0 0 30px rgba(255,194,71,.35)" }, { boxShadow: "inset 0 0 0 rgba(255,194,71,0)" }],
+    [{ boxShadow: "inset 0 0 0 rgba(244,160,176,0)" }, { boxShadow: "inset 0 0 30px rgba(244,160,176,.35)" }, { boxShadow: "inset 0 0 0 rgba(244,160,176,0)" }],
     { duration: 1400, easing: "ease-out" },
   );
 }
@@ -531,7 +606,7 @@ function wireControls() {
       if (!target) return;
       e.preventDefault();
       target.scrollIntoView({ behavior: "smooth", block: "center" });
-      target.animate([{ borderColor: "#5cf06b" }, { borderColor: "" }], { duration: 1100, easing: "ease-out" });
+      target.animate([{ borderColor: "#3fbe55" }, { borderColor: "" }], { duration: 1100, easing: "ease-out" });
     });
   }
 }

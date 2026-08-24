@@ -165,7 +165,7 @@
           <rect x="7" y="7" width="10" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
           <path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
-        <h2>AI SENSORS — REAL TIME DATA FEED</h2>
+        <h2>AI SENSORS — BIOELECTRIC ARRAY</h2>
         <span class="grow"></span>
         <span class="update">UPDATE: <b id="sensor-clock">--:--:--</b></span>
         <span class="dot pulse"></span>
@@ -176,9 +176,7 @@
           <thead>
             <tr>
               <th class="c-clip">CLIP</th>
-              <th>TEMPERATURE<i>(°C)</i></th>
-              <th>HUMIDITY<i>(%)</i></th>
-              <th>ELECTRICAL IMPULSES<i>(mV)</i></th>
+              <th class="c-mv">ELECTRICAL IMPULSE<i>(mV)</i></th>
               <th class="c-wave">WAVEFORM</th>
             </tr>
           </thead>
@@ -186,6 +184,41 @@
         </table>
       </div>
     </section>
+
+    <div class="probe-row">
+      <section class="panel probe">
+        <div class="panel-head">
+          <svg class="chip" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M14 14.9V5.5a2 2 0 1 0-4 0v9.4a4 4 0 1 0 4 0z" fill="none" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M12 9.5v5.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          <h2>PROBE A — CHAMBER TEMP</h2>
+          <span class="grow"></span>
+          <span class="dot pulse"></span>
+        </div>
+        <div class="probe-body">
+          <div class="probe-read"><b id="p-temp">—</b><i>°C</i></div>
+          <canvas class="probe-spark" id="temp-spark" width="300" height="70"></canvas>
+          <span class="probe-note" id="p-temp-note">awaiting probe</span>
+        </div>
+      </section>
+
+      <section class="panel probe">
+        <div class="panel-head">
+          <svg class="chip" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3s6 7 6 11a6 6 0 1 1-12 0c0-4 6-11 6-11z" fill="none" stroke="currentColor" stroke-width="1.7"/>
+          </svg>
+          <h2>PROBE B — HUMIDITY</h2>
+          <span class="grow"></span>
+          <span class="dot pulse"></span>
+        </div>
+        <div class="probe-body">
+          <div class="probe-read"><b id="p-hum">—</b><i>%</i></div>
+          <canvas class="probe-spark" id="hum-spark" width="300" height="70"></canvas>
+          <span class="probe-note" id="p-hum-note">awaiting probe</span>
+        </div>
+      </section>
+    </div>
 
     <section class="panel feedpanel" id="feed">
       <div class="panel-head">

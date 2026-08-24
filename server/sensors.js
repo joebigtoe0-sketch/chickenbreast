@@ -1,29 +1,32 @@
 import { cfg, saveConfig } from "./config.js";
 
 /**
- * The six clips on the breast.
+ * The instruments.
  *
- * Everything here is simulated, but simulated the way the real thing would
- * behave, and simulated ON THE SERVER so every visitor sees the same numbers:
+ * TWO SEPARATE RIGS, because one set of alligator clips cannot read three
+ * different quantities:
  *
- *   temperature — the sample starts near room temp and warms under the lamps
- *                 toward a ceiling it never passes (exponential approach,
- *                 ~6h time constant). Once parked it still breathes on a slow
- *                 oscillation, because a flat line reads as broken.
- *   humidity    — the enclosure dries out as the surface loses moisture:
- *                 same curve, downward, with a floor.
- *   impulses    — an Ornstein-Uhlenbeck walk (mean-reverting noise) per clip
- *                 with occasional spikes. Never wanders off to infinity the
- *                 way a plain random walk does.
+ *   clips[]  — six electrodes on the breast, each reading a bioelectric
+ *              potential in mV. That is all a wire clipped to meat can tell
+ *              you. An Ornstein-Uhlenbeck walk (mean-reverting noise) per clip
+ *              with occasional spikes, so it wanders without ever running off
+ *              the way a plain random walk does. A clip that loses lock gets
+ *              noisier and drifts further until it re-locks, so the status
+ *              light is driven by the data rather than being decoration.
  *
- * A clip that loses lock (red dot) gets noisier and drifts further from its
- * mean until it re-locks, so the status light is driven by the data instead of
- * being decoration.
+ *   chamber   — two probes in the enclosure, nothing to do with the clips.
+ *              Temperature starts near room temp and warms under the lamps
+ *              toward a ceiling it never passes (exponential approach, ~6h
+ *              constant). Humidity does the same downward as the surface dries,
+ *              with a floor. Once parked they still breathe on a slow
+ *              oscillation, because a flat line reads as broken.
+ *
+ * All of it is computed ON THE SERVER so every visitor sees the same numbers.
  */
 
 const CLIPS = 6;
 const TICK_MS = 1000;
-const SAMPLES_PER_TICK = 4; // waveform points pushed to the client each tick
+const SAMPLES_PER_TICK = 2; // waveform points pushed to the client each tick (app.js mirrors this)
 
 const TEMP_START = 22.2;
 const TEMP_CAP = 26.4;
@@ -33,8 +36,6 @@ const HUM_FLOOR = 36.5;
 const HUM_TAU_H = 8;
 
 // fixed per-clip character: position on the breast changes what a clip reads
-const TEMP_OFFSET = [-0.2, 0.1, -0.35, 0.05, -0.15, 0.3];
-const HUM_OFFSET = [0.4, -0.6, 1.0, -0.2, -0.9, 0.5];
 const MV_MEAN = [12.4, 8.6, 15.4, 9.9, 11.2, 16.1];
 
 const rnd = () => Math.random();
@@ -47,12 +48,12 @@ const gauss = () => {
 
 const clips = Array.from({ length: CLIPS }, (_, i) => ({
   id: i + 1,
-  temp: TEMP_START + TEMP_OFFSET[i],
-  hum: HUM_START + HUM_OFFSET[i],
   mv: MV_MEAN[i],
-  locked: i < 3, // opening state matches the reference: three locked, three hunting
-  phase: (i * Math.PI * 2) / CLIPS,
+  locked: i < 3, // opening state: three locked, three hunting
 }));
+
+// the two enclosure probes, independent of the clips
+const chamber = { temp: TEMP_START, hum: HUM_START };
 
 let listeners = [];
 
@@ -61,7 +62,7 @@ function hoursRunning() {
   return Math.max(0, (Date.now() - start) / 3_600_000);
 }
 
-/** Where the whole rig is heading right now, before per-clip character. */
+/** Where the enclosure is heading right now. */
 function targets() {
   const h = hoursRunning();
   const t = TEMP_START + (TEMP_CAP - TEMP_START) * (1 - Math.exp(-h / TEMP_TAU_H));
@@ -72,22 +73,23 @@ function targets() {
 function tick() {
   const { t: tTarget, hum: humTarget, h } = targets();
   const slow = (phase, periodMin) => Math.sin((h * 60 * Math.PI * 2) / periodMin + phase);
-  const out = [];
 
+  // ---- enclosure probes ----
+  const tAim = tTarget + slow(0, 42) * 0.22;
+  chamber.temp += (tAim - chamber.temp) * 0.06 + gauss() * 0.012;
+  chamber.temp = Math.max(20.5, Math.min(TEMP_CAP + 0.6, chamber.temp));
+
+  const hAim = humTarget + slow(1.7, 55) * 0.7;
+  chamber.hum += (hAim - chamber.hum) * 0.05 + gauss() * 0.06;
+  chamber.hum = Math.max(HUM_FLOOR - 1.5, Math.min(HUM_START + 2.5, chamber.hum));
+
+  // ---- electrodes ----
+  const out = [];
   for (const c of clips) {
     // lock/unlock — roughly once every couple of minutes per clip
     if (rnd() < (c.locked ? 0.004 : 0.012)) c.locked = !c.locked;
     const jitter = c.locked ? 1 : 2.4;
 
-    const tAim = tTarget + TEMP_OFFSET[c.id - 1] + slow(c.phase, 42) * 0.22;
-    c.temp += (tAim - c.temp) * 0.06 + gauss() * 0.012 * jitter;
-    c.temp = Math.max(20.5, Math.min(TEMP_CAP + 0.6, c.temp));
-
-    const hAim = humTarget + HUM_OFFSET[c.id - 1] + slow(c.phase + 1.7, 55) * 0.7;
-    c.hum += (hAim - c.hum) * 0.05 + gauss() * 0.06 * jitter;
-    c.hum = Math.max(HUM_FLOOR - 1.5, Math.min(HUM_START + 2.5, c.hum));
-
-    // OU walk on the impulse reading, plus the odd spike
     const mvMean = MV_MEAN[c.id - 1];
     c.mv += (mvMean - c.mv) * (c.locked ? 0.12 : 0.05) + gauss() * 0.28 * jitter;
     if (rnd() < 0.02) c.mv += (rnd() < 0.5 ? -1 : 1) * (1.2 + rnd() * 2.4);
@@ -103,15 +105,26 @@ function tick() {
 
     out.push({
       id: c.id,
-      tempC: Math.round(c.temp * 10) / 10,
-      humidity: Math.round(c.hum),
       impulseMv: Math.round(c.mv * 100) / 100,
       locked: c.locked,
       wave,
     });
   }
 
-  const payload = { ts: Date.now(), runtimeH: Math.round(h * 100) / 100, clips: out };
+  const payload = {
+    ts: Date.now(),
+    runtimeH: Math.round(h * 100) / 100,
+    clips: out,
+    chamber: {
+      tempC: Math.round(chamber.temp * 10) / 10,
+      humidity: Math.round(chamber.hum * 10) / 10,
+      // where each probe is settling, so the panel can say which way it is going
+      tempTarget: Math.round(tTarget * 10) / 10,
+      humTarget: Math.round(humTarget * 10) / 10,
+      tempCap: TEMP_CAP,
+      humFloor: HUM_FLOOR,
+    },
+  };
   for (const fn of listeners) {
     try {
       fn(payload);
@@ -120,24 +133,24 @@ function tick() {
   last = payload;
 }
 
-let last = { ts: Date.now(), runtimeH: 0, clips: [] };
+let last = { ts: Date.now(), runtimeH: 0, clips: [], chamber: null };
 
 /**
- * Start the experiment over: clock back to zero and the six clips back to their
- * opening readings.
+ * Start the experiment over: clock back to zero, probes back to their opening
+ * readings, clips re-seeded.
  *
  * These are one action, not two. The drift curves are all anchored on
- * experimentStart, so moving the clock without re-seeding the clips would leave
- * them sitting at 26°C slowly sagging back toward 22°C over the next minute —
- * a fresh experiment that reads as a warm one. Snapping both is the honest
- * reset, and the tick at the end puts the new numbers on every screen at once.
+ * experimentStart, so moving the clock without re-seeding would leave the
+ * chamber sitting at 26°C slowly sagging back toward 22°C over the next minute
+ * — a fresh experiment that reads as a warm one. The tick at the end puts the
+ * new numbers on every screen at once.
  */
 export function resetExperiment() {
   cfg.experimentStart = Date.now();
   saveConfig();
+  chamber.temp = TEMP_START;
+  chamber.hum = HUM_START;
   clips.forEach((c, i) => {
-    c.temp = TEMP_START + TEMP_OFFSET[i];
-    c.hum = HUM_START + HUM_OFFSET[i];
     c.mv = MV_MEAN[i];
     c.locked = i < 3;
   });
@@ -154,16 +167,14 @@ export function startSensors() {
     cfg.experimentStart = Date.now();
     saveConfig();
   }
-  // Seed each clip where the drift says it should already BE. The clips are
+  // Seed the probes where the drift says they should already BE. They are
   // declared at their opening values, so without this a restart replays the
-  // warm-up — a breast 30 hours into the experiment would climb from 22°C back
+  // warm-up — a chamber 30 hours into the experiment would climb from 22°C back
   // up to 26°C over the following minute, on every redeploy, in front of
   // whoever happens to be watching.
   const { t, hum } = targets();
-  clips.forEach((c, i) => {
-    c.temp = t + TEMP_OFFSET[i];
-    c.hum = hum + HUM_OFFSET[i];
-  });
+  chamber.temp = t;
+  chamber.hum = hum;
   tick();
   setInterval(tick, TICK_MS);
 }
