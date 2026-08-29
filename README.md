@@ -1,7 +1,7 @@
 # chickenbreast — the $LABRAT lab dashboard
 
 A one-screen site for a pump.fun coin: a looping lab cam, six sensor clips on the
-breast, live token stats pulled off the chain, every pump.fun launch scored by
+subject, live token stats pulled off the chain, every pump.fun launch scored by
 "AI", and a bot that buys some of them for real.
 
 ```
