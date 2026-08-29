@@ -168,6 +168,7 @@ app.post("/api/admin/autobuy", requireAdmin, (req, res) => {
   const clean = {};
   if (a.enabled != null) clean.enabled = Boolean(a.enabled);
   if (a.dryRun != null) clean.dryRun = Boolean(a.dryRun);
+  if (a.skipMayhem != null) clean.skipMayhem = Boolean(a.skipMayhem);
   const nums = {
     takeProfitPct: [1, 10_000],
     stopLossPct: [1, 99],

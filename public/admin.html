@@ -184,6 +184,7 @@ a.back:hover{color:var(--green)}
       <div class="row" style="margin-bottom:14px;gap:22px">
         <label class="toggle"><input type="checkbox" id="ab-enabled"> RUN THE BUYER</label>
         <label class="toggle"><input type="checkbox" id="ab-dry"> DRY RUN (no real transaction)</label>
+        <label class="toggle"><input type="checkbox" id="ab-mayhem"> SKIP MAYHEM-MODE COINS</label>
       </div>
       <div class="grid4">
         <div class="field"><label>SOL PER BUY</label><input id="ab-amount" type="number" step="0.001"></div>
@@ -212,7 +213,7 @@ a.back:hover{color:var(--green)}
       </div>
       <div class="hint">
         Picks a coin off the live feed and buys it, then holds until take profit or stop loss. The market cap
-        floor is checked ON-CHAIN at buy time, so a coin that launched fine and died ten seconds later is
+        floor and the mayhem-mode check are both read ON-CHAIN at buy time, so a coin that launched fine and died ten seconds later is
         skipped — the feed's own market cap is the price at creation and tells you nothing. Every curve opens
         at the same price in SOL, so the launch market cap in dollars follows SOL/USD (about $2,550 at SOL $91,
         about $4,200 at SOL $150): a floor just above launch means "not dumped", higher demands real buying,
@@ -384,6 +385,7 @@ async function refresh() {
   if (document.activeElement?.id?.startsWith("ab-") !== true) {
     $("ab-enabled").checked = a.enabled;
     $("ab-dry").checked = a.dryRun;
+    $("ab-mayhem").checked = c.autobuy.skipMayhem !== false;
     $("ab-amount").value = c.autobuy.amountSol;
     $("ab-min").value = c.autobuy.minIntervalS;
     $("ab-max").value = c.autobuy.maxIntervalS;
@@ -527,6 +529,7 @@ $("save-ab").addEventListener("click", async () => {
       body: JSON.stringify({
         enabled: $("ab-enabled").checked,
         dryRun: $("ab-dry").checked,
+        skipMayhem: $("ab-mayhem").checked,
         amountSol: numv("ab-amount"),
         minIntervalS: numv("ab-min"),
         maxIntervalS: numv("ab-max"),

@@ -75,6 +75,9 @@ const DEFAULTS = {
     // at this SOL price additionally demands real buying. Revisit it if SOL
     // moves a lot — the admin panel logs the best mc it saw when nothing passes.
     minMcUsd: 2700,
+    // Mayhem-mode coins run different curve mechanics; the buyer leaves them
+    // alone unless this is turned off.
+    skipMayhem: true,
     maxOpenPositions: 30,
     // exits
     takeProfitPct: 70,

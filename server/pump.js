@@ -102,6 +102,10 @@ export async function getTokenState(mint) {
         curveSol,
         progress: Math.min(1, curveSol / GRADUATION_SOL),
         complete: false,
+        // Both flags live on the curve account, so they are only readable while
+        // the coin is still bonding. A graduated coin has no curve to ask.
+        mayhem: Boolean(bc.isMayhemMode),
+        cashback: Boolean(bc.isCashbackCoin),
       };
     }
   }

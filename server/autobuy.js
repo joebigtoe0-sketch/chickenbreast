@@ -32,6 +32,8 @@ let lastCapWarn = 0;
 let lastFullWarn = 0;
 let lastFloorWarn = 0;
 let lastRejected = null;
+let mayhemSkips = 0;
+let lastMayhemLog = 0;
 let trades = loadTrades();
 let listeners = [];
 
@@ -118,6 +120,10 @@ async function pickCandidate(a) {
       continue;
     }
     if (state.kind !== "curve" && state.kind !== "amm") continue; // gone, or not a pump coin
+    if (a.skipMayhem && state.mayhem) {
+      mayhemSkips++;
+      continue;
+    }
     const mcUsd = solUsd ? state.mcSol * solUsd : null;
     if (minMcUsd && mcUsd != null && mcUsd < minMcUsd) {
       rejected++;
@@ -155,6 +161,11 @@ async function attempt() {
   }
 
   const found = await pickCandidate(a);
+  if (mayhemSkips && Date.now() - lastMayhemLog > 10 * 60_000) {
+    lastMayhemLog = Date.now();
+    log.info("autobuy", "skipped " + mayhemSkips + " mayhem-mode coin(s) since the last note");
+    mayhemSkips = 0;
+  }
   if (!found) {
     if (lastRejected && Date.now() - lastRejected.at < 2000 && Date.now() - lastFloorWarn > 5 * 60_000) {
       lastFloorWarn = Date.now();
