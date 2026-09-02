@@ -4,39 +4,42 @@
  * ================================================================== */
 
 :root{
-  --bg:#fdf7f2;            /* casing cream */
-  --panel:#ffffff;
-  --panel-hi:#fceee9;      /* pale blush */
-  --line:#efd6cd;
-  --line-2:#f8e7e1;
-  --text:#2a1418;          /* warm near-black */
-  --dim:#7a5551;
-  --dim-2:#ad8a85;
-  --accent:#b32d43;        /* cured salami */
-  --accent-strong:#8f2035; /* emphasis reads darker on a light ground */
-  --accent-deep:#6e1526;
-  --brand:#a3243a;
-  /* A red theme cannot signal alarm with red alone, so danger is a hotter,
-     oranger red than the brand burgundy, and money keeps its own two colours. */
-  --danger:#e0342c;
-  --win:#2e8b4f;
-  --win-deep:#1e6b3a;
-  --flag:#c8901c;          /* deli mustard: "we bought this" */
-  /* A slice: cream fat suspended in cured red. Two tile sizes at odd offsets so
-     the repeat never lines up into a visible grid. */
-  --fat:
-    radial-gradient(circle at 12% 22%, #f7ebe0 0 5.2px, transparent 6px),
-    radial-gradient(circle at 43% 11%, #f1dfd2 0 3.4px, transparent 4.1px),
-    radial-gradient(circle at 71% 29%, #f7ebe0 0 5.4px, transparent 6.2px),
-    radial-gradient(circle at 88% 61%, #efdccd 0 4.1px, transparent 4.8px),
-    radial-gradient(circle at 27% 67%, #f7ebe0 0 4.8px, transparent 5.6px),
-    radial-gradient(circle at 57% 83%, #f1dfd2 0 3.8px, transparent 4.5px),
-    radial-gradient(circle at 7%  87%, #efdccd 0 4.4px, transparent 5.1px),
-    radial-gradient(circle at 93% 9%,  #f7ebe0 0 3.6px, transparent 4.3px),
-    radial-gradient(circle at 62% 52%, #f4e4d8 0 4.8px, transparent 5.5px),
-    radial-gradient(circle at 18% 46%, #efdccd 0 3.2px, transparent 3.9px),
-    radial-gradient(circle at 35% 44%, #3a1c20 0 1.7px, transparent 2.1px),
-    radial-gradient(circle at 80% 78%, #3a1c20 0 1.4px, transparent 1.8px);
+  --bg:#e4ecbe;              /* brine */
+  --brine-top:#f0f5d6;
+  --brine-bottom:#c4d18d;
+  /* Panels are slightly translucent so the brine tint and the bubbles behind
+     them stay just perceptible — glass, not paper. */
+  --panel:rgba(252,254,244,.86);
+  --panel-hi:#e7f0ca;
+  --line:#bfd196;
+  --line-2:#dce8b9;
+  --text:#1d2c12;
+  --dim:#576a38;
+  --dim-2:#8ea166;
+  --accent:#4f7a33;          /* dill */
+  --accent-strong:#3a5f23;
+  --accent-deep:#294718;
+  --brand:#3f6b28;
+  /* Green theme, so gains cannot just be "green": the accent is a muted dill
+     and a win is a vivid grass green, far enough apart to read at a glance. */
+  --danger:#d43f22;
+  --win:#1fa34e;
+  --win-deep:#157a3a;
+  --flag:#d9a441;            /* mustard seed: "we bought this" */
+  /* Pickle skin: pale warty bumps over cucumber green, with a couple of seeds. */
+  --speckle:
+    radial-gradient(circle at 12% 22%, #8fbf55 0 5.2px, transparent 6px),
+    radial-gradient(circle at 43% 11%, #7cae46 0 3.4px, transparent 4.1px),
+    radial-gradient(circle at 71% 29%, #8fbf55 0 5.4px, transparent 6.2px),
+    radial-gradient(circle at 88% 61%, #74a440 0 4.1px, transparent 4.8px),
+    radial-gradient(circle at 27% 67%, #8fbf55 0 4.8px, transparent 5.6px),
+    radial-gradient(circle at 57% 83%, #7cae46 0 3.8px, transparent 4.5px),
+    radial-gradient(circle at 7%  87%, #74a440 0 4.4px, transparent 5.1px),
+    radial-gradient(circle at 93% 9%,  #8fbf55 0 3.6px, transparent 4.3px),
+    radial-gradient(circle at 62% 52%, #85b64d 0 4.8px, transparent 5.5px),
+    radial-gradient(circle at 18% 46%, #74a440 0 3.2px, transparent 3.9px),
+    radial-gradient(circle at 35% 44%, #24401a 0 1.7px, transparent 2.1px),
+    radial-gradient(circle at 80% 78%, #24401a 0 1.4px, transparent 1.8px);
   --mono:"JetBrains Mono","IBM Plex Mono",Consolas,ui-monospace,"Courier New",monospace;
   --r:8px;
 }
@@ -44,16 +47,69 @@
 *{box-sizing:border-box}
 html,body{height:100%}
 /* the rind: a cut edge across the very top of the page */
+/* the lid: a ridged screw-top rim across the very top of the glass */
 body::before{
-  content:"";position:fixed;top:0;left:0;right:0;height:5px;z-index:60;
-  background:linear-gradient(90deg,#8d2034,#b32d43 30%,#8d2034 60%,#b32d43 100%);
+  content:"";position:fixed;top:0;left:0;right:0;height:11px;z-index:60;
+  background:
+    repeating-linear-gradient(90deg,rgba(40,52,20,.22) 0 2px,transparent 2px 7px),
+    linear-gradient(180deg,#d8c47c 0%,#b39a4f 55%,#8d7635 100%);
+  box-shadow:0 2px 7px rgba(29,44,18,.3);
 }
+
+/* Everything below sits INSIDE the jar: brine behind, glass in front, and the
+   bubbles rising between them. It is all one fixed layer so scrolling does not
+   drag the liquid around. */
+.jar{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+/* Brine and its bubbles sit BEHIND the panels, where they show through the
+   translucent cards and in the gutters. The glass, and a much fainter second
+   set of bubbles, sit IN FRONT of everything — that pane is what actually sells
+   standing outside the jar looking in. Trapped behind the panels it read as
+   nothing at all. */
+.jar-back{z-index:0}
+.jar-front{z-index:45}
+.jar-front .bubbles{opacity:.17}
+.bubbles{position:absolute;inset:0}
+.bubble{
+  position:absolute;bottom:-8vh;border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.95),rgba(236,246,205,.4) 58%,rgba(255,255,255,0) 70%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.55);
+  animation:rise linear infinite;
+  will-change:transform,opacity;
+}
+/* mustard seeds and peppercorns, drifting far slower than the gas */
+.speck{
+  position:absolute;bottom:-6vh;width:4px;height:5px;border-radius:46% 54% 50% 50%;
+  background:#4a3a16;animation:drift linear infinite;will-change:transform,opacity;
+}
+@keyframes rise{
+  0%{transform:translate3d(0,0,0) scale(.85);opacity:0}
+  8%{opacity:.9}
+  92%{opacity:.6}
+  100%{transform:translate3d(var(--dx),-112vh,0) scale(1.12);opacity:0}
+}
+@keyframes drift{
+  0%{transform:translate3d(0,0,0) rotate(0deg);opacity:0}
+  12%{opacity:.5}
+  100%{transform:translate3d(var(--dx),-110vh,0) rotate(300deg);opacity:0}
+}
+/* curved glass: bright edges, a couple of vertical streaks, and a soft vignette */
+.glass{
+  position:absolute;inset:0;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.5),rgba(255,255,255,0) 6%),
+    linear-gradient(270deg,rgba(255,255,255,.38),rgba(255,255,255,0) 5%),
+    linear-gradient(90deg,transparent 0 11%,rgba(255,255,255,.2) 11.7%,transparent 12.5%),
+    linear-gradient(90deg,transparent 0 87.6%,rgba(255,255,255,.13) 88.2%,transparent 89%);
+  box-shadow:inset 0 0 130px rgba(64,86,32,.2);
+}
+@media (prefers-reduced-motion:reduce){
+  .bubble,.speck{animation:none;opacity:.22}
+}
+
 body{
   margin:0;
-  background:
-    radial-gradient(1200px 620px at 50% -10%,rgba(179,45,67,.09),transparent 70%),
-    linear-gradient(rgba(42,20,24,.035) 1px,transparent 1px) 0 0/100% 44px,
-    var(--bg);
+  background:linear-gradient(180deg,var(--brine-top) 0%,var(--bg) 46%,var(--brine-bottom) 100%);
+  background-attachment:fixed;
   color:var(--text);
   font-family:var(--mono);
   font-size:13px;
@@ -69,14 +125,14 @@ button{font-family:inherit;color:inherit}
   display:flex;align-items:center;gap:28px;
   height:76px;padding:0 24px;
   border-bottom:1px solid var(--line);
-  background:rgba(255,255,255,.92);
+  background:rgba(243,248,222,.86);
   backdrop-filter:blur(6px);
   position:sticky;top:0;z-index:40;
 }
 .logo{display:flex;align-items:center;gap:11px}
 .logo-mark{
   width:34px;height:34px;flex:none;border-radius:6px;object-fit:cover;display:block;
-  border:1px solid var(--line);box-shadow:0 1px 3px rgba(42,20,24,.12);
+  border:1px solid var(--line);box-shadow:0 1px 3px rgba(29,44,18,.12);
 }
 .logo-mark.big{width:44px;height:44px;border-radius:8px}
 .logo-text{display:flex;flex-direction:column;line-height:1}
@@ -86,7 +142,7 @@ button{font-family:inherit;color:inherit}
 .logo-text i{font-style:normal;font-size:8.5px;letter-spacing:2.4px;color:var(--dim);margin-top:4px}
 
 .nav{display:flex;gap:34px;margin-left:26px}
-.nav a{font-size:11px;letter-spacing:1.7px;color:#5c2f33;padding:6px 0;position:relative;transition:color .15s}
+.nav a{font-size:11px;letter-spacing:1.7px;color:#33481f;padding:6px 0;position:relative;transition:color .15s}
 .nav a::after{
   content:"";position:absolute;left:0;right:100%;bottom:0;height:1px;
   background:var(--accent);transition:right .22s ease;
@@ -101,48 +157,49 @@ button{font-family:inherit;color:inherit}
   transition:background .16s,border-color .16s,box-shadow .16s,transform .06s;
 }
 .btn:active{transform:translateY(1px)}
-.btn-buy{border-color:var(--accent);background:var(--accent);color:#fff6ef;position:relative;overflow:hidden}
-.btn-buy:hover{background:var(--accent-strong);border-color:var(--accent-strong);box-shadow:0 3px 12px rgba(179,45,67,.32)}
+.btn-buy{border-color:var(--accent);background:var(--accent);color:#f7fce6;position:relative;overflow:hidden}
+.btn-buy:hover{background:var(--accent-strong);border-color:var(--accent-strong);box-shadow:0 3px 12px rgba(79,122,51,.32)}
 .btn-buy::after{
   content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
-  background:var(--fat);
+  background:var(--speckle);
   background-size:58px 58px,44px 44px,70px 70px,51px 51px,79px 79px,47px 47px,62px 62px,40px 40px,55px 55px,73px 73px,41px 41px,34px 34px;
   transition:opacity .25s;
 }
 .btn-buy:hover::after{opacity:.55}
 .btn-buy > *{position:relative;z-index:1}
-.btn-buy .tk{color:#ffd9c9}
+.btn-buy .tk{color:#e4f0b8}
 .btn.big{padding:14px 26px;font-size:13px}
-.btn-chart{color:#5c2f33;gap:9px}
+.btn-chart{color:#33481f;gap:9px}
 .btn-chart svg{width:16px;height:16px}
-.btn-chart:hover{background:#fbeee9;border-color:#e8c2ba}
+.btn-chart:hover{background:#e9f2cd;border-color:#c6d79e}
 .btn.disabled{opacity:.62;pointer-events:none}
 .topbar-right{display:flex;align-items:stretch;gap:10px;margin-left:auto;height:40px}
 .social{
   position:relative;overflow:hidden;
   display:inline-flex;align-items:center;justify-content:center;
   width:40px;flex:none;align-self:stretch;
-  border:1px solid rgba(179,45,67,.32);border-radius:6px;
-  background:rgba(179,45,67,.05);color:#5c2f33;
+  border:1px solid rgba(79,122,51,.32);border-radius:6px;
+  background:rgba(79,122,51,.05);color:#33481f;
   transition:color .16s,border-color .16s,background .16s,box-shadow .16s,transform .06s;
 }
 .social svg{width:16px;height:16px;position:relative;z-index:1}
 .social:hover{
   color:var(--brand);border-color:var(--accent);
-  background:rgba(179,45,67,.13);
-  box-shadow:0 2px 10px rgba(179,45,67,.18);
+  background:rgba(79,122,51,.13);
+  box-shadow:0 2px 10px rgba(79,122,51,.18);
 }
 .social:active{transform:translateY(1px)}
 /* a light sweeping across on hover — same CRT idea as the cam overlay */
 .social::after{
   content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(115deg,transparent 32%,rgba(163,36,58,.30) 50%,transparent 68%);
+  background:linear-gradient(115deg,transparent 32%,rgba(63,107,40,.30) 50%,transparent 68%);
   transform:translateX(-130%);
 }
 .social:hover::after{transform:translateX(130%);transition:transform .55s ease}
 
 /* ------------------------------------------------------------- layout --- */
 .grid{
+  position:relative;z-index:1;
   display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   gap:12px;padding:14px 16px;max-width:1330px;margin:0 auto;
 }
@@ -162,7 +219,7 @@ button{font-family:inherit;color:inherit}
   border-radius:var(--r);
   overflow:hidden;
   position:relative;
-  box-shadow:0 1px 2px rgba(42,20,24,.05);
+  box-shadow:0 1px 2px rgba(29,44,18,.05);
 }
 .panel-head{
   display:flex;align-items:center;gap:8px;
@@ -170,11 +227,11 @@ button{font-family:inherit;color:inherit}
   border-bottom:1px solid var(--line);
   background:var(--panel-hi);
 }
-.panel-head h2{font-size:10.5px;font-weight:500;letter-spacing:1.7px;color:#7d4a4a;white-space:nowrap}
+.panel-head h2{font-size:10.5px;font-weight:500;letter-spacing:1.7px;color:#4a6030;white-space:nowrap}
 .chip{width:15px;height:15px;color:var(--accent);opacity:.9;flex:none}
 
-.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;box-shadow:0 0 0 2.5px rgba(179,45,67,.18)}
-.dot.off{background:#cbb0ac;box-shadow:0 0 0 2.5px rgba(203,176,172,.28)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;box-shadow:0 0 0 2.5px rgba(79,122,51,.18)}
+.dot.off{background:#b9c69c;box-shadow:0 0 0 2.5px rgba(185,198,156,.28)}
 .pulse{animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.28}}
 
@@ -185,7 +242,7 @@ button{font-family:inherit;color:inherit}
 }
 .ico svg{width:15px;height:15px}
 .ico.small svg{width:12px;height:12px}
-.ico:hover{color:var(--accent-strong);background:rgba(179,45,67,.09)}
+.ico:hover{color:var(--accent-strong);background:rgba(79,122,51,.09)}
 
 /* ------------------------------------------------------------- lab cam --- */
 .tag-live{
@@ -194,8 +251,8 @@ button{font-family:inherit;color:inherit}
 }
 .cam-bar{
   display:flex;align-items:center;justify-content:space-between;
-  height:26px;padding:0 12px;font-size:10px;letter-spacing:1.2px;color:#7d4a4a;
-  background:#fceee9;border-bottom:1px solid var(--line-2);
+  height:26px;padding:0 12px;font-size:10px;letter-spacing:1.2px;color:#4a6030;
+  background:#e7f0ca;border-bottom:1px solid var(--line-2);
 }
 .cam-bar.hidden{display:none}
 .video-wrap{position:relative;aspect-ratio:16/8.4;background:#000;overflow:hidden}
@@ -219,12 +276,12 @@ button{font-family:inherit;color:inherit}
   position:absolute;top:10px;right:12px;display:flex;align-items:center;gap:6px;
   font-size:9.5px;letter-spacing:2px;color:#f2f8ea;text-shadow:0 1px 4px #000;
 }
-.rec .dot{background:var(--danger);box-shadow:0 0 8px rgba(224,52,44,.9)}
+.rec .dot{background:var(--danger);box-shadow:0 0 8px rgba(212,63,34,.9)}
 .video-bar{
   display:flex;align-items:center;gap:10px;height:32px;padding:0 10px;
-  background:#fceee9;border-top:1px solid var(--line-2);
+  background:#e7f0ca;border-top:1px solid var(--line-2);
 }
-.live-mini{display:inline-flex;align-items:center;gap:6px;font-size:9.5px;letter-spacing:1.6px;color:#7d4a4a}
+.live-mini{display:inline-flex;align-items:center;gap:6px;font-size:9.5px;letter-spacing:1.6px;color:#4a6030}
 .quality{font-size:9.5px;letter-spacing:1.4px;color:var(--dim)}
 
 /* --------------------------------------------------------------- stats --- */
@@ -232,11 +289,11 @@ button{font-family:inherit;color:inherit}
 .stat{display:flex;flex-direction:column;gap:7px;padding:13px 12px 14px}
 .stat-label{
   display:flex;align-items:center;gap:6px;
-  font-size:9px;letter-spacing:1.5px;color:#7a5551;
+  font-size:9px;letter-spacing:1.5px;color:#576a38;
 }
 .drop{width:12px;height:12px;color:var(--accent);opacity:.85}
 .stat-value{
-  font-size:clamp(12px,1.12vw,15.5px);font-weight:500;letter-spacing:0;color:#2a1418;line-height:1.1;
+  font-size:clamp(12px,1.12vw,15.5px);font-weight:500;letter-spacing:0;color:#1d2c12;line-height:1.1;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .stat-sub{font-size:9.5px;letter-spacing:.9px;color:var(--dim-2);min-height:12px}
@@ -248,53 +305,53 @@ button{font-family:inherit;color:inherit}
 .row-2{display:grid;grid-template-columns:minmax(0,1.72fr) minmax(0,1fr);gap:12px;flex:none}
 .cta{
   display:flex;flex-direction:column;justify-content:space-between;gap:16px;padding:18px;
-  background:linear-gradient(155deg,#bb3149 0%,#8d2034 100%);
-  border-color:#8d2034;
-  color:#fdeee6;
+  background:linear-gradient(155deg,#5d9435 0%,#2f5c1d 100%);
+  border-color:#2f5c1d;
+  color:#f2f7d9;
 }
 /* the fat, laid over the meat and under the text */
 .cta::before{
   content:"";position:absolute;inset:0;pointer-events:none;
-  background:var(--fat);
+  background:var(--speckle);
   background-size:96px 96px,73px 73px,117px 117px,85px 85px,131px 131px,79px 79px,103px 103px,67px 67px,91px 91px,121px 121px,68px 68px,57px 57px;
-  opacity:.42;
+  opacity:.5;
 }
 .cta > *{position:relative;z-index:1}
-.cta .logo-mark{border-color:rgba(253,238,230,.45);box-shadow:0 1px 4px rgba(42,20,24,.3)}
+.cta .logo-mark{border-color:rgba(253,238,230,.45);box-shadow:0 1px 4px rgba(29,44,18,.3)}
 .cta-top{display:flex;gap:14px;align-items:flex-start}
 .cta-copy h3{
-  font-size:13.5px;letter-spacing:1.6px;color:#fffaf6;margin-bottom:10px;
-  text-shadow:0 1px 3px rgba(42,20,24,.6);
+  font-size:13.5px;letter-spacing:1.6px;color:#fbffe9;margin-bottom:10px;
+  text-shadow:0 1px 3px rgba(20,38,10,.65);
 }
-.cta-copy p{margin:0;font-size:11.5px;line-height:1.85;color:#fdece5;white-space:pre-line;text-shadow:0 1px 3px rgba(42,20,24,.55)}
+.cta-copy p{margin:0;font-size:11.5px;line-height:1.85;color:#eef6d4;white-space:pre-line;text-shadow:0 1px 3px rgba(20,38,10,.6)}
 .cta-buttons{display:flex;gap:12px}
-.cta .btn-buy{background:#fff6ef;border-color:#fff6ef;color:#8d2034}
-.cta .btn-buy .tk{color:#b32d43}
-.cta .btn-buy:hover{background:#fff;border-color:#fff;box-shadow:0 3px 14px rgba(42,20,24,.28)}
-.cta .btn-chart{color:#fdeee6;border-color:rgba(253,238,230,.5);background:transparent}
-.cta .btn-chart:hover{background:rgba(253,238,230,.14);border-color:#fdeee6}
+.cta .btn-buy{background:#f7fce6;border-color:#f7fce6;color:#2f5c1d}
+.cta .btn-buy .tk{color:#4f7a33}
+.cta .btn-buy:hover{background:#fff;border-color:#fff;box-shadow:0 3px 14px rgba(29,44,18,.28)}
+.cta .btn-chart{color:#f2f7d9;border-color:rgba(253,238,230,.5);background:transparent}
+.cta .btn-chart:hover{background:rgba(253,238,230,.14);border-color:#f2f7d9}
 .cta .btn.disabled{opacity:.7}
 .cta-buttons .btn{flex:1}
 
 .meta{display:flex;flex-direction:column;justify-content:space-evenly;gap:14px;padding:16px}
 .meta-block{display:flex;flex-direction:column;gap:6px}
-.meta-label{font-size:9px;letter-spacing:1.6px;color:#a0817c}
+.meta-label{font-size:9px;letter-spacing:1.6px;color:#8ea166}
 .meta-row{display:flex;align-items:center;gap:9px}
-.ca{font-size:11.5px;letter-spacing:.4px;color:#3d2226;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ca{font-size:11.5px;letter-spacing:.4px;color:#24331a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .copy{flex:none}
 .copy.done{color:var(--accent)}
 .sol{width:19px;height:15px;flex:none}
-.chain-name{font-size:11.5px;letter-spacing:1.4px;color:#3d2226}
+.chain-name{font-size:11.5px;letter-spacing:1.4px;color:#24331a}
 .uptime{font-size:11.5px;letter-spacing:1px;color:var(--accent);opacity:.85}
 
 /* ------------------------------------------------------------- sensors --- */
 .sensors{display:flex;flex-direction:column;flex:none}
 .update{font-size:9px;letter-spacing:1.3px;color:var(--dim-2)}
-.update b{font-weight:400;color:#7d4a4a}
+.update b{font-weight:400;color:#4a6030}
 .table-scroll{overflow-x:auto}
 .sensor-table{width:100%;border-collapse:collapse;table-layout:fixed}
 .sensor-table th{
-  font-size:8.5px;font-weight:400;letter-spacing:1.3px;color:#7a5551;
+  font-size:8.5px;font-weight:400;letter-spacing:1.3px;color:#576a38;
   padding:7px 8px 6px;border-bottom:1px solid var(--line);text-align:center;line-height:1.5;
 }
 .sensor-table th i{display:block;font-style:normal;font-size:8px;color:var(--dim-2);letter-spacing:1px}
@@ -307,8 +364,8 @@ button{font-family:inherit;color:inherit}
   font-variant-numeric:tabular-nums;
 }
 .sensor-table tr:last-child td{border-bottom:0}
-.sensor-table tr:hover td{background:rgba(179,45,67,.032)}
-.clip-cell{display:flex;align-items:center;gap:9px;justify-content:flex-start;padding-left:6px;color:#3d2226}
+.sensor-table tr:hover td{background:rgba(79,122,51,.032)}
+.clip-cell{display:flex;align-items:center;gap:9px;justify-content:flex-start;padding-left:6px;color:#24331a}
 .wave{width:100%;max-width:300px;height:27px;display:block;margin:0 auto}
 td.mv{color:var(--accent)}
 td.unlocked{opacity:.62}
@@ -336,7 +393,7 @@ td.unlocked{opacity:.62}
 }
 .feed-head{
   padding:9px 14px;border-bottom:1px solid var(--line);
-  font-size:8.5px;letter-spacing:1.3px;color:#7a5551;
+  font-size:8.5px;letter-spacing:1.3px;color:#576a38;
 }
 .feed-head .r{text-align:right}
 .feed-rows{flex:1;overflow-y:auto;min-height:0}
@@ -344,36 +401,36 @@ td.unlocked{opacity:.62}
   padding:7px 14px;border-bottom:1px solid var(--line-2);
   animation:rowin .45s cubic-bezier(.2,.8,.3,1);
 }
-@keyframes rowin{from{opacity:0;transform:translateY(-9px);background:rgba(179,45,67,.09)}to{opacity:1;transform:none}}
-.feed-row:hover{background:rgba(179,45,67,.035)}
+@keyframes rowin{from{opacity:0;transform:translateY(-9px);background:rgba(79,122,51,.09)}to{opacity:1;transform:none}}
+.feed-row:hover{background:rgba(79,122,51,.035)}
 .f-token{display:flex;align-items:center;gap:8px;min-width:0}
 .f-avatar{
   width:22px;height:22px;border-radius:50%;flex:none;object-fit:cover;
-  background:#fbeee9;border:1px solid var(--line);
+  background:#e9f2cd;border:1px solid var(--line);
   display:flex;align-items:center;justify-content:center;
   font-size:9px;color:var(--accent);letter-spacing:0;
 }
-.f-symbol{font-size:11.5px;color:#2a1418;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.f-hash{font-size:10px;color:#a0817c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.f-verdict{font-size:10px;letter-spacing:.7px;color:#7d4a4a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f-symbol{font-size:11.5px;color:#1d2c12;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.f-hash{font-size:10px;color:#8ea166;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f-verdict{font-size:10px;letter-spacing:.7px;color:#4a6030;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .f-conf{display:flex;align-items:center;gap:8px}
-.f-pct{font-size:10px;color:#7d4a4a;width:30px;text-align:right;font-variant-numeric:tabular-nums}
-.f-bar{flex:1;height:6px;border-radius:3px;background:#f5e0da;overflow:hidden}
+.f-pct{font-size:10px;color:#4a6030;width:30px;text-align:right;font-variant-numeric:tabular-nums}
+.f-bar{flex:1;height:6px;border-radius:3px;background:#dce9b6;overflow:hidden}
 .f-bar i{
   display:block;height:100%;width:0;border-radius:3px;
   background:linear-gradient(90deg,var(--accent-deep),var(--accent));
 }
-.f-time{font-size:9.5px;color:#a0817c;text-align:right;font-variant-numeric:tabular-nums}
+.f-time{font-size:9.5px;color:#8ea166;text-align:right;font-variant-numeric:tabular-nums}
 
 .feed-row.own .f-symbol{color:var(--brand)}
 .feed-row.own .f-verdict{color:var(--accent)}
-.feed-row.own{background:rgba(179,45,67,.045)}
+.feed-row.own{background:rgba(79,122,51,.045)}
 
-.feed-row.bought{background:rgba(200,144,28,.07)}
+.feed-row.bought{background:rgba(217,164,65,.07)}
 .feed-row.bought .f-symbol,.feed-row.bought .f-pct{color:var(--flag)}
-.feed-row.bought .f-bar i{background:linear-gradient(90deg,#e8bd63,var(--flag));box-shadow:none}
+.feed-row.bought .f-bar i{background:linear-gradient(90deg,#e8cf63,var(--flag));box-shadow:none}
 .feed-row.bought .f-verdict{color:var(--flag);display:flex;align-items:center;gap:5px;letter-spacing:1.1px}
-.feed-row.bought .f-avatar{border-color:rgba(200,144,28,.55)}
+.feed-row.bought .f-avatar{border-color:rgba(217,164,65,.55)}
 .f-check{width:12px;height:12px;flex:none}
 .feed-row.buying .f-verdict{color:var(--accent-strong);animation:pulse 1.1s ease-in-out infinite}
 
@@ -382,36 +439,37 @@ td.unlocked{opacity:.62}
 .feed-row.sold.win{background:rgba(46,139,79,.07)}
 .feed-row.sold.win .f-symbol,.feed-row.sold.win .f-pct,.feed-row.sold.win .f-verdict{color:var(--win)}
 .feed-row.sold.win .f-bar i{background:linear-gradient(90deg,var(--win-deep),var(--win));box-shadow:none}
-.feed-row.sold.loss{background:rgba(224,52,44,.055)}
-.feed-row.sold.loss .f-symbol,.feed-row.sold.loss .f-pct,.feed-row.sold.loss .f-verdict{color:#c0342c}
-.feed-row.sold.loss .f-bar i{background:linear-gradient(90deg,#7a1220,#e0342c);box-shadow:none}
+.feed-row.sold.loss{background:rgba(212,63,34,.055)}
+.feed-row.sold.loss .f-symbol,.feed-row.sold.loss .f-pct,.feed-row.sold.loss .f-verdict{color:#c0392c}
+.feed-row.sold.loss .f-bar i{background:linear-gradient(90deg,#8a2a14,#d43f22);box-shadow:none}
 .feed-row.sold .f-avatar{border-color:currentColor}
 
 .feed-foot{
   display:flex;align-items:center;gap:10px;justify-content:center;
   padding:8px;border-top:1px solid var(--line);
   font-size:9.5px;letter-spacing:1.5px;color:var(--accent-deep);
-  background:#fdf6f2;
+  background:#f4f8e2;
 }
 .feed-foot.offline{color:var(--flag)}
-.feed-foot.offline .spinner{border-color:rgba(200,144,28,.22);border-top-color:var(--flag)}
+.feed-foot.offline .spinner{border-color:rgba(217,164,65,.22);border-top-color:var(--flag)}
 .spinner{
   width:11px;height:11px;border-radius:50%;flex:none;
-  border:1.6px solid rgba(179,45,67,.22);border-top-color:var(--accent);
+  border:1.6px solid rgba(79,122,51,.22);border-top-color:var(--accent);
   animation:spin .8s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* -------------------------------------------------------------- footer --- */
 .footbar{
+  position:relative;z-index:1;
   display:flex;align-items:center;gap:14px;
   margin:2px 16px 16px;padding:0 16px;height:46px;
   max-width:1330px;margin-left:auto;margin-right:auto;
   background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
 }
-.foot-label{font-size:10px;font-weight:400;letter-spacing:1.6px;color:#7d4a4a}
-.phase-text{font-size:11px;color:#7a5551;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bar{width:160px;height:7px;border-radius:4px;background:#f5e0da;overflow:hidden;flex:none}
+.foot-label{font-size:10px;font-weight:400;letter-spacing:1.6px;color:#4a6030}
+.phase-text{font-size:11px;color:#576a38;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{width:160px;height:7px;border-radius:4px;background:#dce9b6;overflow:hidden;flex:none}
 .bar i{
   display:block;height:100%;width:0;border-radius:4px;
   background:linear-gradient(90deg,var(--accent-deep),var(--accent));
@@ -455,9 +513,9 @@ td.unlocked{opacity:.62}
 
 /* thin scrollbars, in keeping */
 ::-webkit-scrollbar{width:7px;height:7px}
-::-webkit-scrollbar-track{background:#fdf6f2}
-::-webkit-scrollbar-thumb{background:#e8c9c2;border-radius:4px}
-::-webkit-scrollbar-thumb:hover{background:#d9aca4}
+::-webkit-scrollbar-track{background:#f4f8e2}
+::-webkit-scrollbar-thumb{background:#cadba4;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#b3c98a}
 
 /* feed rows open the coin on pump.fun */
 .feed-row{cursor:pointer}

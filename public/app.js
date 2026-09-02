@@ -163,7 +163,7 @@ function drawSpark(points) {
   ctx.beginPath();
   ctx.moveTo(x(0), y(points[0]));
   for (let i = 1; i < points.length; i++) ctx.lineTo(x(i), y(points[i]));
-  ctx.strokeStyle = "#b32d43";
+  ctx.strokeStyle = "#4f7a33";
   ctx.lineWidth = 1.3;
   ctx.lineJoin = "round";
   ctx.stroke();
@@ -172,8 +172,8 @@ function drawSpark(points) {
   ctx.lineTo(0, h);
   ctx.closePath();
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "rgba(179,45,67,.16)");
-  g.addColorStop(1, "rgba(179,45,67,0)");
+  g.addColorStop(0, "rgba(79,122,51,.18)");
+  g.addColorStop(1, "rgba(79,122,51,0)");
   ctx.fillStyle = g;
   ctx.fill();
 }
@@ -289,7 +289,7 @@ function drawProbe(canvas, probe) {
   ctx.beginPath();
   ctx.moveTo(x(0), y(b[0]));
   for (let i = 1; i < b.length; i++) ctx.lineTo(x(i), y(b[i]));
-  ctx.strokeStyle = "#b32d43";
+  ctx.strokeStyle = "#4f7a33";
   ctx.lineWidth = 1.3;
   ctx.lineJoin = "round";
   ctx.stroke();
@@ -298,8 +298,8 @@ function drawProbe(canvas, probe) {
   ctx.lineTo(0, h);
   ctx.closePath();
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "rgba(179,45,67,.16)");
-  g.addColorStop(1, "rgba(179,45,67,0)");
+  g.addColorStop(0, "rgba(79,122,51,.18)");
+  g.addColorStop(1, "rgba(79,122,51,0)");
   ctx.fillStyle = g;
   ctx.fill();
 }
@@ -331,7 +331,7 @@ function drawWaves() {
       const y = mid - buf[i] * amp;
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
-    ctx.strokeStyle = w.locked ? "#b32d43" : "#d29a9a";
+    ctx.strokeStyle = w.locked ? "#4f7a33" : "#a9bf8a";
     ctx.lineWidth = 1.5;
     ctx.lineJoin = "round";
     ctx.shadowColor = "transparent";
@@ -611,6 +611,48 @@ function wireControls() {
   }
 }
 
+/**
+ * Fill the jar. Sizes, lanes, drift and speed are all randomised so the rise
+ * never reads as a loop, and every delay is NEGATIVE so the bubbles are already
+ * mid-climb on the first paint rather than the page starting empty and filling.
+ */
+function fillJar(hostId, bubbleCount, speckCount, sizeRange) {
+  const host = $(hostId);
+  if (!host) return;
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  for (let i = 0; i < bubbleCount; i++) {
+    const b = document.createElement("div");
+    b.className = "bubble";
+    const size = rand(sizeRange[0], sizeRange[1]);
+    b.style.width = size + "px";
+    b.style.height = size + "px";
+    b.style.left = rand(0, 100) + "%";
+    b.style.setProperty("--dx", rand(-34, 34) + "px");
+    // bigger bubbles rise faster, the way they actually do — but a jar is not
+    // a kettle, so the floor keeps even the largest one slow
+    b.style.animationDuration = Math.max(12, rand(18, 34) - size * 0.45) + "s";
+    b.style.animationDelay = -rand(0, 30) + "s";
+    host.appendChild(b);
+  }
+  for (let i = 0; i < speckCount; i++) {
+    const s = document.createElement("div");
+    s.className = "speck";
+    const size = rand(3, 6);
+    s.style.width = size + "px";
+    s.style.height = size * 1.3 + "px";
+    s.style.left = rand(0, 100) + "%";
+    s.style.setProperty("--dx", rand(-70, 70) + "px");
+    s.style.animationDuration = rand(36, 68) + "s";
+    s.style.animationDelay = -rand(0, 60) + "s";
+    host.appendChild(s);
+  }
+}
+
+// behind the panels: small and plentiful. In front: fewer and bigger, so the
+// veil reads as depth rather than as dirt on the screen.
+fillJar("bubbles", 26, 7, [4, 19]);
+fillJar("bubbles-front", 13, 3, [10, 40]);
 wireControls();
 connect();
 requestAnimationFrame(drawWaves);

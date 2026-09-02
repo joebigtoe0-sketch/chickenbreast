@@ -8,9 +8,9 @@
 <link rel="icon" href="/media/logo.jpg" type="image/jpeg">
 <style>
 :root{
-  --bg:#fdf7f2;--panel:#ffffff;--panel-hi:#fceee9;--line:#efd6cd;--line-2:#f8e7e1;
-  --text:#2a1418;--dim:#7a5551;--dim-2:#ad8a85;--accent:#b32d43;--accent-strong:#8f2035;
-  --accent-deep:#6e1526;--brand:#a3243a;--danger:#e0342c;--flag:#c8901c;
+  --bg:#eef4d5;--panel:#fcfef4;--panel-hi:#e7f0ca;--line:#bfd196;--line-2:#dce8b9;
+  --text:#1d2c12;--dim:#576a38;--dim-2:#8ea166;--accent:#4f7a33;--accent-strong:#3a5f23;
+  --accent-deep:#294718;--brand:#3f6b28;--danger:#d43f22;--flag:#d9a441;
   --mono:"JetBrains Mono","IBM Plex Mono",Consolas,ui-monospace,monospace;
 }
 *{box-sizing:border-box}
@@ -21,12 +21,12 @@ body{
 .wrap{max-width:900px;margin:0 auto}
 h1{font-size:16px;letter-spacing:4px;color:var(--brand);margin:0 0 4px;text-shadow:0 0 16px rgba(90,212,110,.35)}
 .sub{font-size:10px;letter-spacing:2px;color:var(--dim-2);margin-bottom:22px}
-h2{font-size:10px;letter-spacing:2px;color:#7d4a4a;margin:26px 0 9px;font-weight:400}
+h2{font-size:10px;letter-spacing:2px;color:#4a6030;margin:26px 0 9px;font-weight:400}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px}
 .card+.card{margin-top:10px}
-label{display:block;font-size:9px;letter-spacing:1.4px;color:#a0817c;margin:0 0 5px}
+label{display:block;font-size:9px;letter-spacing:1.4px;color:#8ea166;margin:0 0 5px}
 input,textarea,select{
-  width:100%;background:#fdf7f2;border:1px solid var(--line);border-radius:6px;
+  width:100%;background:#eef4d5;border:1px solid var(--line);border-radius:6px;
   color:var(--text);padding:9px 11px;font:12px var(--mono);outline:none;
 }
 input:focus,textarea:focus{border-color:var(--accent-deep);box-shadow:0 0 0 2px rgba(63,190,85,.08)}
@@ -36,16 +36,16 @@ textarea{resize:vertical;line-height:1.7}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 button{
-  background:#fbeee9;border:1px solid var(--line);border-radius:6px;color:#5c2f33;
+  background:#e9f2cd;border:1px solid var(--line);border-radius:6px;color:#33481f;
   padding:10px 16px;font:12px var(--mono);letter-spacing:1.2px;cursor:pointer;transition:.15s;
 }
-button:hover{background:#f5e0da;border-color:#e8c2ba}
-button:disabled{opacity:.35;cursor:not-allowed;background:#fbeee9;border-color:var(--line)}
+button:hover{background:#dde9ba;border-color:#c6d79e}
+button:disabled{opacity:.35;cursor:not-allowed;background:#e9f2cd;border-color:var(--line)}
 input:disabled{opacity:.5;cursor:not-allowed}
 button.go{border-color:rgba(63,190,85,.5);color:var(--accent-strong)}
 button.go:hover{background:rgba(63,190,85,.12)}
-button.danger{border-color:#e8b4ae;color:#c0342c}
-button.danger:hover{background:#fdeeea}
+button.danger{border-color:#d9b48c;color:#c0392c}
+button.danger:hover{background:#fbf1e2}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .msg{font-size:11px;letter-spacing:.5px;margin-left:4px}
 .ok{color:var(--accent)}.err{color:var(--danger)}.warn{color:var(--flag)}
@@ -55,23 +55,23 @@ button.danger:hover{background:#fdeeea}
   padding:5px 11px;border-radius:20px;border:1px solid var(--line);color:var(--dim);
 }
 .pill.on{border-color:var(--accent-deep);color:var(--accent)}
-.pill.live{border-color:#d7b06a;color:var(--flag)}
-.pill.off{border-color:#ecc9c4;color:#9a7370}
+.pill.live{border-color:#d3bb63;color:var(--flag)}
+.pill.off{border-color:#d3dfae;color:#7d8a5c}
 .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
-.toggle{display:flex;align-items:center;gap:9px;font-size:11px;color:#5c2f33;cursor:pointer;user-select:none}
+.toggle{display:flex;align-items:center;gap:9px;font-size:11px;color:#33481f;cursor:pointer;user-select:none}
 .toggle input{width:auto;margin:0;accent-color:#3fbe55}
 table{width:100%;border-collapse:collapse;font-size:11px}
-th{text-align:left;font-size:8.5px;letter-spacing:1.3px;color:#a0817c;font-weight:400;padding:6px 8px;border-bottom:1px solid var(--line)}
-td{padding:6px 8px;border-bottom:1px solid var(--line-2);color:#7d4a4a}
+th{text-align:left;font-size:8.5px;letter-spacing:1.3px;color:#8ea166;font-weight:400;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:6px 8px;border-bottom:1px solid var(--line-2);color:#4a6030}
 td a{color:var(--accent);text-decoration:none}
 .mono-log{
-  background:#fdf6f2;border:1px solid var(--line-2);border-radius:6px;padding:10px;
+  background:#f4f8e2;border:1px solid var(--line-2);border-radius:6px;padding:10px;
   height:200px;overflow:auto;font-size:10.5px;line-height:1.75;white-space:pre-wrap;
 }
-.mono-log .l-err{color:#c0342c}.mono-log .l-warn{color:var(--flag)}.mono-log .l-ok{color:var(--accent)}.mono-log .l-info{color:#7a5551}
+.mono-log .l-err{color:#c0392c}.mono-log .l-warn{color:var(--flag)}.mono-log .l-ok{color:var(--accent)}.mono-log .l-info{color:#576a38}
 .danger-note{
   border-left:2px solid var(--flag);background:rgba(244,160,176,.05);
-  padding:10px 12px;font-size:10.5px;line-height:1.75;color:#7a5a2a;border-radius:0 6px 6px 0;
+  padding:10px 12px;font-size:10.5px;line-height:1.75;color:#6b6224;border-radius:0 6px 6px 0;
 }
 #panel{display:none}
 .top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
@@ -160,7 +160,7 @@ a.back:hover{color:var(--accent)}
         <span class="pill" id="wallet-pill"><span class="dot"></span><span id="wallet-state">NO KEY INSTALLED</span></span>
         <span class="msg" id="wallet-addr"></span>
       </div>
-      <div class="hint" id="env-note" style="display:none;color:#8f2035">
+      <div class="hint" id="env-note" style="display:none;color:#3a5f23">
         This wallet comes from the <code>WALLET_SECRET</code> environment variable, which takes precedence over
         anything on disk. Change or remove it where it is set — Railway → service → Variables — then redeploy.
       </div>
@@ -232,7 +232,7 @@ a.back:hover{color:var(--accent)}
         <span class="msg" id="pos-stats"></span>
       </div>
       <table><thead><tr><th>TOKEN</th><th>AGE</th><th>COST</th><th>VALUE</th><th>P&amp;L</th><th>STATUS</th></tr></thead>
-      <tbody id="positions"><tr><td colspan="6" style="color:#7a5551">nothing open</td></tr></tbody></table>
+      <tbody id="positions"><tr><td colspan="6" style="color:#576a38">nothing open</td></tr></tbody></table>
       <div class="row" style="margin-top:14px">
         <button class="danger" id="close-all">SELL EVERYTHING NOW</button>
         <span class="msg" id="pos-msg"></span>
@@ -256,7 +256,7 @@ a.back:hover{color:var(--accent)}
     <h2>RECENT BUYS</h2>
     <div class="card">
       <table><thead><tr><th>TIME</th><th>TOKEN</th><th>SOL</th><th>MODE</th><th>RESULT</th></tr></thead>
-      <tbody id="trades"><tr><td colspan="5" style="color:#7a5551">nothing yet</td></tr></tbody></table>
+      <tbody id="trades"><tr><td colspan="5" style="color:#576a38">nothing yet</td></tr></tbody></table>
     </div>
 
     <h2>SERVER LOG</h2>
@@ -422,12 +422,12 @@ async function refresh() {
           const res = t.ok
             ? t.sig
               ? `<a href="https://solscan.io/tx/${t.sig}" target="_blank" rel="noopener">${t.sig.slice(0, 10)}…</a>`
-              : "<span style='color:#7a5551'>simulated</span>"
-            : `<span style="color:#c0342c">${(t.error || "failed").slice(0, 70)}</span>`;
+              : "<span style='color:#576a38'>simulated</span>"
+            : `<span style="color:#c0392c">${(t.error || "failed").slice(0, 70)}</span>`;
           return `<tr><td>${time}</td><td>$${t.symbol || "?"}</td><td>${t.sol}</td><td>${t.dryRun ? "dry" : "live"}</td><td>${res}</td></tr>`;
         })
         .join("")
-    : `<tr><td colspan="5" style="color:#7a5551">nothing yet</td></tr>`;
+    : `<tr><td colspan="5" style="color:#576a38">nothing yet</td></tr>`;
 
   // log
   const box = $("log");
@@ -461,13 +461,13 @@ function renderPositions(p) {
         .map((x) => {
           const mins = Math.max(0, Math.round((Date.now() - x.openedAt) / 60000));
           const pnl = x.pnlPct ?? 0;
-          const col = pnl >= 0 ? "#3fbe55" : "#c0342c";
-          const status = x.status === "stuck" ? `<span style="color:#c0342c">STUCK</span>` : x.dryRun ? "paper" : "live";
+          const col = pnl >= 0 ? "#3fbe55" : "#c0392c";
+          const status = x.status === "stuck" ? `<span style="color:#c0392c">STUCK</span>` : x.dryRun ? "paper" : "live";
           return `<tr><td>${x.symbol}</td><td>${mins}m</td><td>${x.costSol}</td><td>${(x.valueSol ?? 0).toFixed(4)}</td>` +
                  `<td style="color:${col}">${pnl >= 0 ? "+" : ""}${pnl.toFixed(1)}%</td><td>${status}</td></tr>`;
         })
         .join("")
-    : `<tr><td colspan="6" style="color:#7a5551">nothing open</td></tr>`;
+    : `<tr><td colspan="6" style="color:#576a38">nothing open</td></tr>`;
 }
 
 /* ------------------------------------------------------------ actions --- */
