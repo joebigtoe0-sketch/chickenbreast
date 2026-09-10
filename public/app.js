@@ -163,7 +163,7 @@ function drawSpark(points) {
   ctx.beginPath();
   ctx.moveTo(x(0), y(points[0]));
   for (let i = 1; i < points.length; i++) ctx.lineTo(x(i), y(points[i]));
-  ctx.strokeStyle = "#4f7a33";
+  ctx.strokeStyle = "#93381f";
   ctx.lineWidth = 1.3;
   ctx.lineJoin = "round";
   ctx.stroke();
@@ -172,8 +172,8 @@ function drawSpark(points) {
   ctx.lineTo(0, h);
   ctx.closePath();
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "rgba(79,122,51,.18)");
-  g.addColorStop(1, "rgba(79,122,51,0)");
+  g.addColorStop(0, "rgba(147,56,31,.18)");
+  g.addColorStop(1, "rgba(147,56,31,0)");
   ctx.fillStyle = g;
   ctx.fill();
 }
@@ -289,7 +289,7 @@ function drawProbe(canvas, probe) {
   ctx.beginPath();
   ctx.moveTo(x(0), y(b[0]));
   for (let i = 1; i < b.length; i++) ctx.lineTo(x(i), y(b[i]));
-  ctx.strokeStyle = "#4f7a33";
+  ctx.strokeStyle = "#93381f";
   ctx.lineWidth = 1.3;
   ctx.lineJoin = "round";
   ctx.stroke();
@@ -298,8 +298,8 @@ function drawProbe(canvas, probe) {
   ctx.lineTo(0, h);
   ctx.closePath();
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "rgba(79,122,51,.18)");
-  g.addColorStop(1, "rgba(79,122,51,0)");
+  g.addColorStop(0, "rgba(147,56,31,.18)");
+  g.addColorStop(1, "rgba(147,56,31,0)");
   ctx.fillStyle = g;
   ctx.fill();
 }
@@ -331,7 +331,7 @@ function drawWaves() {
       const y = mid - buf[i] * amp;
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
-    ctx.strokeStyle = w.locked ? "#4f7a33" : "#a9bf8a";
+    ctx.strokeStyle = w.locked ? "#93381f" : "#c09079";
     ctx.lineWidth = 1.5;
     ctx.lineJoin = "round";
     ctx.shadowColor = "transparent";
@@ -606,53 +606,56 @@ function wireControls() {
       if (!target) return;
       e.preventDefault();
       target.scrollIntoView({ behavior: "smooth", block: "center" });
-      target.animate([{ borderColor: "#3fbe55" }, { borderColor: "" }], { duration: 1100, easing: "ease-out" });
+      target.animate([{ borderColor: "#93381f" }, { borderColor: "" }], { duration: 1100, easing: "ease-out" });
     });
   }
 }
 
 /**
- * Fill the jar. Sizes, lanes, drift and speed are all randomised so the rise
- * never reads as a loop, and every delay is NEGATIVE so the bubbles are already
+ * Fill the ambient. Sizes, lanes, drift and speed are all randomised so the rise
+ * never reads as a loop, and every delay is NEGATIVE so the motes are already
  * mid-climb on the first paint rather than the page starting empty and filling.
  */
-function fillJar(hostId, bubbleCount, speckCount, sizeRange) {
+function fillAmbient(hostId, moteCount, speckCount, sizeRange) {
   const host = $(hostId);
   if (!host) return;
   const rand = (a, b) => a + Math.random() * (b - a);
 
-  for (let i = 0; i < bubbleCount; i++) {
+  for (let i = 0; i < moteCount; i++) {
     const b = document.createElement("div");
-    b.className = "bubble";
+    b.className = "mote";
     const size = rand(sizeRange[0], sizeRange[1]);
     b.style.width = size + "px";
     b.style.height = size + "px";
     b.style.left = rand(0, 100) + "%";
-    b.style.setProperty("--dx", rand(-34, 34) + "px");
-    // bigger bubbles rise faster, the way they actually do — but a jar is not
-    // a kettle, so the floor keeps even the largest one slow
-    b.style.animationDuration = Math.max(12, rand(18, 34) - size * 0.45) + "s";
+    b.style.setProperty("--dx", rand(-90, 90) + "px");
+    // a bigger cloud is heavier and climbs slower; the floor keeps the whole
+    // drift lazy either way, because smoke off a pan is not a chimney
+    b.style.animationDuration = Math.max(26, rand(42, 78) - size * 0.06) + "s";
     b.style.animationDelay = -rand(0, 30) + "s";
     host.appendChild(b);
   }
   for (let i = 0; i < speckCount; i++) {
     const s = document.createElement("div");
     s.className = "speck";
-    const size = rand(3, 6);
+    const size = rand(2.5, 4);
     s.style.width = size + "px";
-    s.style.height = size * 1.3 + "px";
+    s.style.height = size + "px";
     s.style.left = rand(0, 100) + "%";
-    s.style.setProperty("--dx", rand(-70, 70) + "px");
-    s.style.animationDuration = rand(36, 68) + "s";
-    s.style.animationDelay = -rand(0, 60) + "s";
+    // a spit comes off the pan wherever it likes, so these are seeded across
+    // the whole height rather than rising from the bottom edge like the smoke
+    s.style.top = rand(12, 92) + "%";
+    s.style.setProperty("--dx", rand(-55, 55) + "px");
+    s.style.animationDuration = rand(3.2, 6.5) + "s";
+    s.style.animationDelay = -rand(0, 9) + "s";
     host.appendChild(s);
   }
 }
 
-// behind the panels: small and plentiful. In front: fewer and bigger, so the
-// veil reads as depth rather than as dirt on the screen.
-fillJar("bubbles", 26, 7, [4, 19]);
-fillJar("bubbles-front", 13, 3, [10, 40]);
+// Behind the panels: more clouds, smaller. In front: fewer and much larger, so
+// the veil reads as depth rather than as dirt on the screen.
+fillAmbient("motes", 16, 10, [70, 210]);
+fillAmbient("motes-front", 7, 5, [130, 340]);
 wireControls();
 connect();
 requestAnimationFrame(drawWaves);
