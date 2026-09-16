@@ -163,7 +163,7 @@ function drawSpark(points) {
   ctx.beginPath();
   ctx.moveTo(x(0), y(points[0]));
   for (let i = 1; i < points.length; i++) ctx.lineTo(x(i), y(points[i]));
-  ctx.strokeStyle = "#93381f";
+  ctx.strokeStyle = "#8f7207";
   ctx.lineWidth = 1.3;
   ctx.lineJoin = "round";
   ctx.stroke();
@@ -172,8 +172,8 @@ function drawSpark(points) {
   ctx.lineTo(0, h);
   ctx.closePath();
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "rgba(147,56,31,.18)");
-  g.addColorStop(1, "rgba(147,56,31,0)");
+  g.addColorStop(0, "rgba(143,114,7,.2)");
+  g.addColorStop(1, "rgba(143,114,7,0)");
   ctx.fillStyle = g;
   ctx.fill();
 }
@@ -289,7 +289,7 @@ function drawProbe(canvas, probe) {
   ctx.beginPath();
   ctx.moveTo(x(0), y(b[0]));
   for (let i = 1; i < b.length; i++) ctx.lineTo(x(i), y(b[i]));
-  ctx.strokeStyle = "#93381f";
+  ctx.strokeStyle = "#8f7207";
   ctx.lineWidth = 1.3;
   ctx.lineJoin = "round";
   ctx.stroke();
@@ -298,8 +298,8 @@ function drawProbe(canvas, probe) {
   ctx.lineTo(0, h);
   ctx.closePath();
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "rgba(147,56,31,.18)");
-  g.addColorStop(1, "rgba(147,56,31,0)");
+  g.addColorStop(0, "rgba(143,114,7,.2)");
+  g.addColorStop(1, "rgba(143,114,7,0)");
   ctx.fillStyle = g;
   ctx.fill();
 }
@@ -331,7 +331,7 @@ function drawWaves() {
       const y = mid - buf[i] * amp;
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
-    ctx.strokeStyle = w.locked ? "#93381f" : "#c09079";
+    ctx.strokeStyle = w.locked ? "#8f7207" : "#b0a05c";
     ctx.lineWidth = 1.5;
     ctx.lineJoin = "round";
     ctx.shadowColor = "transparent";
@@ -606,7 +606,7 @@ function wireControls() {
       if (!target) return;
       e.preventDefault();
       target.scrollIntoView({ behavior: "smooth", block: "center" });
-      target.animate([{ borderColor: "#93381f" }, { borderColor: "" }], { duration: 1100, easing: "ease-out" });
+      target.animate([{ borderColor: "#8f7207" }, { borderColor: "" }], { duration: 1100, easing: "ease-out" });
     });
   }
 }
@@ -626,12 +626,14 @@ function fillAmbient(hostId, moteCount, speckCount, sizeRange) {
     b.className = "mote";
     const size = rand(sizeRange[0], sizeRange[1]);
     b.style.width = size + "px";
-    b.style.height = size + "px";
+    // a leaf is an oval, not a disc
+    b.style.height = size * rand(0.38, 0.58) + "px";
+    b.style.setProperty("--spin", rand(-420, 420) + "deg");
     b.style.left = rand(0, 100) + "%";
     b.style.setProperty("--dx", rand(-90, 90) + "px");
     // a bigger cloud is heavier and climbs slower; the floor keeps the whole
     // drift lazy either way, because smoke off a pan is not a chimney
-    b.style.animationDuration = Math.max(26, rand(42, 78) - size * 0.06) + "s";
+    b.style.animationDuration = Math.max(22, rand(32, 62) - size * 0.12) + "s";
     b.style.animationDelay = -rand(0, 30) + "s";
     host.appendChild(b);
   }
@@ -646,16 +648,16 @@ function fillAmbient(hostId, moteCount, speckCount, sizeRange) {
     // the whole height rather than rising from the bottom edge like the smoke
     s.style.top = rand(12, 92) + "%";
     s.style.setProperty("--dx", rand(-55, 55) + "px");
-    s.style.animationDuration = rand(3.2, 6.5) + "s";
-    s.style.animationDelay = -rand(0, 9) + "s";
+    s.style.animationDuration = rand(9, 18) + "s";
+    s.style.animationDelay = -rand(0, 20) + "s";
     host.appendChild(s);
   }
 }
 
 // Behind the panels: more clouds, smaller. In front: fewer and much larger, so
 // the veil reads as depth rather than as dirt on the screen.
-fillAmbient("motes", 16, 10, [70, 210]);
-fillAmbient("motes-front", 7, 5, [130, 340]);
+fillAmbient("motes", 18, 12, [26, 74]);
+fillAmbient("motes-front", 9, 6, [40, 110]);
 wireControls();
 connect();
 requestAnimationFrame(drawWaves);
