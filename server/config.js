@@ -115,6 +115,25 @@ export function updateConfig(patch) {
   return cfg;
 }
 
+/**
+ * Stamp a local media URL with the file's modification time.
+ *
+ * Swapping a clip almost always reuses the same filename, so the URL never
+ * changes and any cache between us and the viewer — the browser, a CDN, the
+ * host's edge — can happily keep serving the old bytes. Stamping makes a new
+ * file a genuinely new URL, so the swap lands everywhere immediately.
+ */
+function stamped(url) {
+  const clean = String(url || "").split("?")[0];
+  if (!clean.startsWith("/media/")) return url; // an external URL is not ours to stamp
+  try {
+    const st = fs.statSync(path.join(ROOT, "public", clean));
+    return `${clean}?v=${Math.floor(st.mtimeMs)}`;
+  } catch {
+    return url; // not on disk yet — the NO SIGNAL card handles that
+  }
+}
+
 /** Everything the public site is allowed to know. No secrets, no autobuy. */
 export function publicConfig() {
   const ca = cfg.contractAddress || "";
@@ -123,7 +142,7 @@ export function publicConfig() {
     tokenName: cfg.tokenName,
     tokenSymbol: cfg.tokenSymbol,
     tagline: cfg.tagline,
-    videoUrl: cfg.videoUrl,
+    videoUrl: stamped(cfg.videoUrl),
     camLabel: cfg.camLabel,
     aboutTitle: cfg.aboutTitle,
     aboutBody: cfg.aboutBody,
