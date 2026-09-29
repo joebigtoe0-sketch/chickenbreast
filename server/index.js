@@ -9,7 +9,7 @@ import { startSensors, getSensors, onSensors, resetExperiment } from "./sensors.
 import { startStats, getStats, onStats, refreshNow } from "./stats.js";
 import { startFeed, getFeed, onFeed, feedConnected } from "./feed.js";
 import { startAutobuy, autobuyStatus, getTrades, onTrade } from "./autobuy.js";
-import { startPositions, positionsSummary, getPositions, closeAll } from "./positions.js";
+import { startPositions, positionsSummary, getPositions, closeAll, publicBook, onPosition } from "./positions.js";
 import { loadWallet, setWalletSecret, clearWallet, walletPubkey, solBalance, walletSource } from "./wallet.js";
 import { executeBuy } from "./pump.js";
 
@@ -89,7 +89,7 @@ app.get("/health", (_req, res) => {
 
 // --------------------------------------------------------------- public data
 app.get("/api/bootstrap", (_req, res) => {
-  res.json({ config: publicConfig(), stats: getStats(), sensors: getSensors(), feed: getFeed(), feedConnected: feedConnected() });
+  res.json({ config: publicConfig(), stats: getStats(), sensors: getSensors(), feed: getFeed(), feedConnected: feedConnected(), book: publicBook(40) });
 });
 
 // ------------------------------------------------------------- admin actions
@@ -257,7 +257,7 @@ function broadcast(event, payload) {
 }
 
 wss.on("connection", (ws) => {
-  const hello = { config: publicConfig(), stats: getStats(), sensors: getSensors(), feed: getFeed(), feedConnected: feedConnected() };
+  const hello = { config: publicConfig(), stats: getStats(), sensors: getSensors(), feed: getFeed(), feedConnected: feedConnected(), book: publicBook(40) };
   ws.send(JSON.stringify({ event: "hello", payload: hello }));
 });
 
@@ -265,6 +265,9 @@ onSensors((p) => broadcast("sensors", p));
 onStats((p) => broadcast("stats", p));
 onFeed((event, payload) => broadcast(event, payload));
 onTrade(() => broadcast("autobuy", autobuyStatus()));
+// the site shows what the buyer holds, so the book goes out on every change
+// and on every valuation sweep, which keeps open P&L live on screen
+onPosition(() => broadcast("book", publicBook(40)));
 
 // --------------------------------------------------------------------- start
 startSensors();

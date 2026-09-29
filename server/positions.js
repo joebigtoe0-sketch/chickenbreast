@@ -85,6 +85,26 @@ export function positionsSummary() {
   };
 }
 
+/**
+ * What the public site is allowed to see: what was bought, for how much, and
+ * how it turned out. Deliberately trimmed — no wallet address, no token
+ * amounts, nothing that is not already visible on chain anyway.
+ */
+export function publicBook(n = 40) {
+  return positions.slice(0, n).map((x) => ({
+    mint: x.mint,
+    symbol: x.symbol,
+    image: x.image ?? null,
+    solSpent: x.costSol,
+    status: x.status,
+    pnlPct: x.pnlPct ?? 0,
+    reason: x.reason ?? null,
+    sig: x.sellSig ?? x.buySig ?? null,
+    dryRun: Boolean(x.dryRun),
+    at: x.closedAt ?? x.openedAt,
+  }));
+}
+
 /** Record a fill. `tokensRaw` is a BigInt; it is stored as a string. */
 export function openPosition({ mint, symbol, image, costSol, tokensRaw, entryPriceSol, entryMcUsd, buySig, dryRun }) {
   const p = {

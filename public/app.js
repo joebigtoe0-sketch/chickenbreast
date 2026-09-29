@@ -18,6 +18,8 @@ const state = {
   waves: new Map(), // clip id -> { buf, canvas, ctx, locked }
   lastSensorTick: 0,
   rows: new Map(), // mint -> { el, anim }
+  field: null,
+  replaying: false,
 };
 
 const SAMPLES_PER_TICK = 2; // must match server/sensors.js
@@ -163,7 +165,7 @@ function drawSpark(points) {
   ctx.beginPath();
   ctx.moveTo(x(0), y(points[0]));
   for (let i = 1; i < points.length; i++) ctx.lineTo(x(i), y(points[i]));
-  ctx.strokeStyle = "#8f7207";
+  ctx.strokeStyle = "#57c98a";
   ctx.lineWidth = 1.3;
   ctx.lineJoin = "round";
   ctx.stroke();
@@ -172,8 +174,8 @@ function drawSpark(points) {
   ctx.lineTo(0, h);
   ctx.closePath();
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "rgba(143,114,7,.2)");
-  g.addColorStop(1, "rgba(143,114,7,0)");
+  g.addColorStop(0, "rgba(87,201,138,.28)");
+  g.addColorStop(1, "rgba(87,201,138,0)");
   ctx.fillStyle = g;
   ctx.fill();
 }
@@ -289,7 +291,7 @@ function drawProbe(canvas, probe) {
   ctx.beginPath();
   ctx.moveTo(x(0), y(b[0]));
   for (let i = 1; i < b.length; i++) ctx.lineTo(x(i), y(b[i]));
-  ctx.strokeStyle = "#8f7207";
+  ctx.strokeStyle = "#57c98a";
   ctx.lineWidth = 1.3;
   ctx.lineJoin = "round";
   ctx.stroke();
@@ -298,8 +300,8 @@ function drawProbe(canvas, probe) {
   ctx.lineTo(0, h);
   ctx.closePath();
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "rgba(143,114,7,.2)");
-  g.addColorStop(1, "rgba(143,114,7,0)");
+  g.addColorStop(0, "rgba(87,201,138,.28)");
+  g.addColorStop(1, "rgba(87,201,138,0)");
   ctx.fillStyle = g;
   ctx.fill();
 }
@@ -331,11 +333,11 @@ function drawWaves() {
       const y = mid - buf[i] * amp;
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
-    ctx.strokeStyle = w.locked ? "#8f7207" : "#b0a05c";
+    ctx.strokeStyle = w.locked ? "#7bf0a8" : "#3f7a58";
     ctx.lineWidth = 1.5;
     ctx.lineJoin = "round";
-    ctx.shadowColor = "transparent";
-    ctx.shadowBlur = 0;
+    ctx.shadowColor = "rgba(87,201,138,.5)";
+    ctx.shadowBlur = w.locked ? 4 : 0;
     ctx.stroke();
     ctx.shadowBlur = 0;
   }
@@ -405,6 +407,7 @@ function addFeedRow(item) {
   const el = feedRowEl(item);
   rows.prepend(el);
 
+  if (!state.replaying) state.field?.spark();
   const entry = { el, value: 0, anim: null };
   // one mint can appear twice (our own coin re-enters the feed); the map keeps
   // the newest row, which is the one an update should light up
@@ -462,6 +465,7 @@ function markBought(item) {
   if (!entry) return;
   const el = entry.el;
   el.classList.remove("buying");
+  reactToBuy();
   liftRow(el, item.ts);
   el.classList.add("bought");
   el.querySelector(".f-verdict").innerHTML = `${CHECK_SVG}BOUGHT${item.dryRun ? " (DRY)" : ""}`;
@@ -493,6 +497,49 @@ function setFeedStatus(connected) {
   foot.classList.toggle("offline", !connected);
 }
 
+/** What the buyer actually did: one row per position, newest first. */
+function renderBook(list) {
+  const host = $("book-rows");
+  if (!host || !Array.isArray(list)) return;
+
+  const open = list.filter((x) => x.status === "open").length;
+  const spent = list.reduce((s, x) => s + (x.solSpent || 0), 0);
+  const sum = $("book-sum");
+  if (sum) sum.innerHTML = list.length ? `<b>${open}</b> open · <b>${spent.toFixed(2)}</b> SOL` : "";
+
+  if (!list.length) {
+    host.innerHTML = '<div class="book-empty">nothing bought yet</div>';
+    return;
+  }
+
+  host.innerHTML = list
+    .map((x) => {
+      const initial = (x.symbol || "?")[0];
+      const avatar = x.image
+        ? `<img class="f-avatar" src="${x.image}" alt="" loading="lazy" referrerpolicy="no-referrer">`
+        : `<span class="f-avatar">${initial}</span>`;
+      let cls = "open";
+      let label = x.dryRun ? "PAPER" : "HOLDING";
+      if (x.status === "closed") {
+        cls = x.pnlPct >= 0 ? "win" : "loss";
+        label = `${x.pnlPct >= 0 ? "+" : ""}${x.pnlPct.toFixed(0)}%`;
+      } else if (x.status === "stuck") {
+        cls = "stuck";
+        label = "STUCK";
+      }
+      const t = new Date(x.at);
+      const hh = String(t.getHours()).padStart(2, "0");
+      const mm = String(t.getMinutes()).padStart(2, "0");
+      return `<div class="book-row" data-mint="${x.mint}" data-sig="${x.sig || ""}">
+        <div class="b-token">${avatar}<span class="b-symbol">${x.symbol || "?"}</span></div>
+        <div class="b-sol">${(x.solSpent || 0).toFixed(3)}</div>
+        <div class="b-state ${cls}">${label}</div>
+        <div class="b-time">${hh}:${mm}</div>
+      </div>`;
+    })
+    .join("");
+}
+
 /* --------------------------------------------------------- websocket --- */
 function connect() {
   const proto = location.protocol === "https:" ? "wss" : "ws";
@@ -514,11 +561,13 @@ function connect() {
     const { event, payload } = msg;
     if (event === "hello") {
       setFeedStatus(payload.feedConnected !== false);
+      renderBook(payload.book);
       applyConfig(payload.config);
       applyStats(payload.stats);
       applySensors(payload.sensors);
       $("feed-rows").innerHTML = "";
       state.rows.clear();
+      state.replaying = true;
       for (const item of [...payload.feed].reverse()) addFeedRow(item);
       // rows restored from history are already settled — no 5s climb
       for (const item of payload.feed) {
@@ -531,6 +580,7 @@ function connect() {
         entry.el.querySelector(".f-pct").textContent = `${item.confidence}%`;
         entry.el.querySelector(".f-verdict").textContent = item.verdict;
       }
+      state.replaying = false;
     } else if (event === "config") {
       applyConfig(payload);
     } else if (event === "stats") {
@@ -541,6 +591,8 @@ function connect() {
       addFeedRow(payload);
     } else if (event === "feed:update") {
       updateFeedRow(payload);
+    } else if (event === "book") {
+      renderBook(payload);
     } else if (event === "feed:status") {
       setFeedStatus(Boolean(payload.connected));
     }
@@ -581,6 +633,14 @@ function wireControls() {
   $("fs-btn2").addEventListener("click", fullscreen);
   $("cam-x").addEventListener("click", () => $("cam-bar").classList.add("hidden"));
 
+  $("book-rows")?.addEventListener("click", (e) => {
+    const row = e.target.closest(".book-row");
+    if (!row) return;
+    const sig = row.dataset.sig;
+    const url = sig ? `https://solscan.io/tx/${sig}` : `https://pump.fun/coin/${row.dataset.mint}`;
+    window.open(url, "_blank", "noopener");
+  });
+
   $("copy-ca").addEventListener("click", async () => {
     const ca = state.config?.contractAddress;
     if (!ca) return;
@@ -606,7 +666,7 @@ function wireControls() {
       if (!target) return;
       e.preventDefault();
       target.scrollIntoView({ behavior: "smooth", block: "center" });
-      target.animate([{ borderColor: "#8f7207" }, { borderColor: "" }], { duration: 1100, easing: "ease-out" });
+      target.animate([{ borderColor: "#57c98a" }, { borderColor: "" }], { duration: 1100, easing: "ease-out" });
     });
   }
 }
@@ -616,48 +676,200 @@ function wireControls() {
  * never reads as a loop, and every delay is NEGATIVE so the motes are already
  * mid-climb on the first paint rather than the page starting empty and filling.
  */
-function fillAmbient(hostId, moteCount, speckCount, sizeRange) {
-  const host = $(hostId);
-  if (!host) return;
-  const rand = (a, b) => a + Math.random() * (b - a);
+/**
+ * The field.
+ *
+ * Neurons drift, link to whoever is near enough, and fire signals down those
+ * links. Two things keep it cheap enough to run behind a live dashboard:
+ * the glow is a sprite blitted per node rather than a gradient rebuilt every
+ * frame, and node count scales with viewport area so a wide monitor is not
+ * sparse and a phone is not soup.
+ *
+ * It is also wired to the real thing: every scanned token fires one signal,
+ * and a buy fires a burst outward from the subject in the middle.
+ */
+function startNeuralField() {
+  const canvas = $("neural");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d", { alpha: false });
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  for (let i = 0; i < moteCount; i++) {
-    const b = document.createElement("div");
-    b.className = "mote";
-    const size = rand(sizeRange[0], sizeRange[1]);
-    b.style.width = size + "px";
-    // a leaf is an oval, not a disc
-    b.style.height = size * rand(0.38, 0.58) + "px";
-    b.style.setProperty("--spin", rand(-420, 420) + "deg");
-    b.style.left = rand(0, 100) + "%";
-    b.style.setProperty("--dx", rand(-90, 90) + "px");
-    // a bigger cloud is heavier and climbs slower; the floor keeps the whole
-    // drift lazy either way, because smoke off a pan is not a chimney
-    b.style.animationDuration = Math.max(22, rand(32, 62) - size * 0.12) + "s";
-    b.style.animationDelay = -rand(0, 30) + "s";
-    host.appendChild(b);
+  const LINK = 158;
+  const nodes = [];
+  const signals = [];
+  let w = 0, h = 0, dpr = 1, last = performance.now();
+
+  // one glow sprite, drawn once and then blitted — building a radial gradient
+  // per node per frame is what makes fields like this drop frames
+  const sprite = document.createElement("canvas");
+  sprite.width = sprite.height = 64;
+  {
+    const s = sprite.getContext("2d");
+    const g = s.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, "rgba(255,255,255,1)");
+    g.addColorStop(0.22, "rgba(150,255,190,.55)");
+    g.addColorStop(0.55, "rgba(87,201,138,.18)");
+    g.addColorStop(1, "rgba(87,201,138,0)");
+    s.fillStyle = g;
+    s.fillRect(0, 0, 64, 64);
   }
-  for (let i = 0; i < speckCount; i++) {
-    const s = document.createElement("div");
-    s.className = "speck";
-    const size = rand(2.5, 4);
-    s.style.width = size + "px";
-    s.style.height = size + "px";
-    s.style.left = rand(0, 100) + "%";
-    // a spit comes off the pan wherever it likes, so these are seeded across
-    // the whole height rather than rising from the bottom edge like the smoke
-    s.style.top = rand(12, 92) + "%";
-    s.style.setProperty("--dx", rand(-55, 55) + "px");
-    s.style.animationDuration = rand(9, 18) + "s";
-    s.style.animationDelay = -rand(0, 20) + "s";
-    host.appendChild(s);
+
+  const rand = (lo, hi) => lo + Math.random() * (hi - lo);
+
+  function seed() {
+    nodes.length = 0;
+    const n = Math.round(Math.min(130, Math.max(40, (w * h) / 15500)));
+    for (let i = 0; i < n; i++) {
+      nodes.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: rand(-0.16, 0.16),
+        vy: rand(-0.16, 0.16),
+        r: rand(1.1, 3.4),
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
   }
+
+  function resize() {
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    w = canvas.clientWidth || window.innerWidth;
+    h = canvas.clientHeight || window.innerHeight;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    seed();
+  }
+
+  /** Fire one signal from a node to a neighbour. */
+  function spark(from, gold) {
+    if (signals.length > 70 || nodes.length < 2) return;
+    const a0 = from ?? nodes[(Math.random() * nodes.length) | 0];
+    let best = null, bestD = Infinity;
+    for (let i = 0; i < 9; i++) {
+      const c = nodes[(Math.random() * nodes.length) | 0];
+      if (c === a0) continue;
+      const d = Math.hypot(c.x - a0.x, c.y - a0.y);
+      if (d < LINK && d < bestD) { best = c; bestD = d; }
+    }
+    if (!best) return;
+    signals.push({ a: a0, b: best, t: 0, speed: rand(0.5, 1.15), gold: Boolean(gold) });
+  }
+
+  /** A buy landed: throw signals outward from the subject in the middle. */
+  function burst(count) {
+    const cx = w / 2, cy = h * 0.47;
+    const near = nodes
+      .map((n) => ({ n, d: Math.hypot(n.x - cx, n.y - cy) }))
+      .sort((p, q) => p.d - q.d)
+      .slice(0, Math.max(6, count))
+      .map((p) => p.n);
+    for (const n of near) spark(n, true);
+  }
+
+  function frame(now) {
+    const dt = Math.min(64, now - last);
+    last = now;
+    const t = now / 1000;
+
+    ctx.fillStyle = "#050b07";
+    ctx.fillRect(0, 0, w, h);
+
+    for (const n of nodes) {
+      n.x += n.vx * dt * 0.06;
+      n.y += n.vy * dt * 0.06;
+      if (n.x < -40) n.x = w + 40; else if (n.x > w + 40) n.x = -40;
+      if (n.y < -40) n.y = h + 40; else if (n.y > h + 40) n.y = -40;
+    }
+
+    // links
+    ctx.lineWidth = 1;
+    for (let i = 0; i < nodes.length; i++) {
+      const p = nodes[i];
+      for (let j = i + 1; j < nodes.length; j++) {
+        const q = nodes[j];
+        const dx = p.x - q.x, dy = p.y - q.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 > LINK * LINK) continue;
+        const alpha = (1 - Math.sqrt(d2) / LINK) * 0.17;
+        ctx.strokeStyle = "rgba(87,201,138," + alpha.toFixed(3) + ")";
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(q.x, q.y);
+        ctx.stroke();
+      }
+    }
+
+    // cell bodies
+    ctx.globalCompositeOperation = "lighter";
+    for (const n of nodes) {
+      const twinkle = 0.62 + Math.sin(t * 1.1 + n.phase) * 0.38;
+      const s = n.r * 11 * twinkle;
+      ctx.globalAlpha = 0.5 * twinkle;
+      ctx.drawImage(sprite, n.x - s, n.y - s, s * 2, s * 2);
+    }
+
+    // signals in flight
+    for (let i = signals.length - 1; i >= 0; i--) {
+      const s = signals[i];
+      s.t += (s.speed * dt) / 1000;
+      if (s.t >= 1) { signals.splice(i, 1); continue; }
+      const x = s.a.x + (s.b.x - s.a.x) * s.t;
+      const y = s.a.y + (s.b.y - s.a.y) * s.t;
+      // a short tail, so it reads as travelling rather than blinking
+      const tailT = Math.max(0, s.t - 0.16);
+      const tx = s.a.x + (s.b.x - s.a.x) * tailT;
+      const ty = s.a.y + (s.b.y - s.a.y) * tailT;
+      ctx.globalAlpha = Math.sin(s.t * Math.PI) * 0.9;
+      ctx.strokeStyle = s.gold ? "rgba(245,207,39,.85)" : "rgba(150,255,190,.8)";
+      ctx.lineWidth = s.gold ? 2 : 1.4;
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      const g = s.gold ? 20 : 13;
+      ctx.globalAlpha = Math.sin(s.t * Math.PI) * (s.gold ? 0.95 : 0.7);
+      ctx.drawImage(sprite, x - g, y - g, g * 2, g * 2);
+    }
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+
+    requestAnimationFrame(frame);
+  }
+
+  resize();
+  window.addEventListener("resize", resize);
+  if (reduced) {
+    // one static frame, no loop
+    ctx.fillStyle = "#050b07";
+    ctx.fillRect(0, 0, w, h);
+    for (const n of nodes) {
+      const s = n.r * 9;
+      ctx.globalAlpha = 0.4;
+      ctx.drawImage(sprite, n.x - s, n.y - s, s * 2, s * 2);
+    }
+    ctx.globalAlpha = 1;
+  } else {
+    setInterval(() => spark(), 150);
+    requestAnimationFrame(frame);
+  }
+
+  state.field = { spark, burst };
 }
 
-// Behind the panels: more clouds, smaller. In front: fewer and much larger, so
-// the veil reads as depth rather than as dirt on the screen.
-fillAmbient("motes", 18, 12, [26, 74]);
-fillAmbient("motes-front", 9, 6, [40, 110]);
+/** The subject flares and the field throws a burst when a buy lands. */
+function reactToBuy() {
+  if (state.replaying) return; // restored history is not news
+  const wrap = $("brain-wrap");
+  if (wrap) {
+    wrap.classList.remove("fire");
+    void wrap.offsetWidth; // restart the animation
+    wrap.classList.add("fire");
+  }
+  state.field?.burst(14);
+}
+
+startNeuralField();
 wireControls();
 connect();
 requestAnimationFrame(drawWaves);

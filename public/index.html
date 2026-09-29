@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>$LABRAT — THE LAB TOKEN</title>
-<meta name="description" content="A live experiment. Six clips, one banana, unlimited potential.">
+<meta name="description" content="A living experiment. Six clips, one subject, every launch scanned.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -13,9 +13,10 @@
 </head>
 <body>
 
-<div class="ambient ambient-back" aria-hidden="true">
-  <div class="motes" id="motes"></div>
-</div>
+<!-- the field: neurons, their connections, and the signals running between
+     them. Everything else floats on top of this. -->
+<canvas id="neural" class="neural" aria-hidden="true"></canvas>
+<div class="deep-shade" aria-hidden="true"></div>
 
 <header class="topbar" id="top">
   <a class="logo" href="#top">
@@ -30,6 +31,7 @@
     <a href="#about">ABOUT</a>
     <a href="#lab">LAB</a>
     <a href="#feed">FEED</a>
+    <a href="#book">BUYS</a>
   </nav>
 
   <div class="topbar-right">
@@ -40,39 +42,125 @@
   </div>
 </header>
 
-<main class="grid">
+<main class="stage">
 
-  <!-- ============================== LEFT ============================== -->
-  <div class="col">
+  <!-- ========================== LEFT RAIL: what it sees ========================== -->
+  <aside class="rail rail-left">
+
+    <section class="panel about" id="about">
+      <div class="panel-head">
+        <span class="dot pulse"></span><h2>THE EXPERIMENT</h2>
+      </div>
+      <div class="about-body">
+        <h3 id="about-title">FUELING THE FUTURE. IN THE LAB.</h3>
+        <p id="about-body"></p>
+        <div class="uptime-line">
+          <span class="meta-label">UPTIME</span>
+          <span class="uptime" id="uptime">—</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel sensors" id="sensors">
+      <div class="panel-head">
+        <svg class="chip" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="7" y="7" width="10" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <h2>BIOELECTRIC ARRAY</h2>
+        <span class="grow"></span>
+        <span class="update"><b id="sensor-clock">--:--:--</b></span>
+      </div>
+      <div class="table-scroll">
+        <table class="sensor-table">
+          <thead>
+            <tr>
+              <th class="c-clip">CLIP</th>
+              <th class="c-mv">IMPULSE<i>(mV)</i></th>
+              <th class="c-wave">WAVEFORM</th>
+            </tr>
+          </thead>
+          <tbody id="sensor-rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel feedpanel" id="feed">
+      <div class="panel-head">
+        <span class="dot pulse"></span><h2>SCANNING</h2>
+        <span class="grow"></span>
+        <span class="live-mini">LIVE</span>
+      </div>
+      <div class="feed-head">
+        <span>TOKEN</span><span>RESULT</span><span>CONF</span><span class="r">TIME</span>
+      </div>
+      <div class="feed-rows" id="feed-rows"></div>
+      <div class="feed-foot">
+        <span id="scan-text">SCANNING BLOCKCHAIN FOR NEW TOKENS...</span>
+        <span class="spinner" aria-hidden="true"></span>
+      </div>
+    </section>
+  </aside>
+
+  <!-- ============================ CORE: the subject ============================ -->
+  <div class="core">
+    <div class="brain-wrap" id="brain-wrap">
+      <div class="brain-halo" aria-hidden="true"></div>
+      <img id="brain" class="brain" src="/media/cheesebrain_png.png" alt="The subject under test" width="1616" height="964">
+    </div>
+
+    <div class="core-foot">
+      <div class="ca-line">
+        <span class="meta-label">CONTRACT</span>
+        <span class="ca" id="ca-text">not set yet</span>
+        <button class="ico copy" id="copy-ca" title="copy contract address" aria-label="copy contract address">
+          <svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M15 5H6a2 2 0 0 0-2 2v9" fill="none" stroke="currentColor" stroke-width="1.9"/></svg>
+        </button>
+        <span class="chain-chip">
+          <svg class="sol" viewBox="0 0 32 26" aria-hidden="true">
+            <defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00ffa3"/><stop offset="1" stop-color="#dc1fff"/></linearGradient></defs>
+            <path d="M6.4 19.6h25.1l-5.9 5.6H.5zM6.4 .8h25.1l-5.9 5.6H.5zM25.6 10.2H.5l5.9 5.6h25.1z" fill="url(#sg)"/>
+          </svg>SOLANA
+        </span>
+      </div>
+      <div class="core-buttons">
+        <a class="btn btn-buy big" id="buy-main" href="https://pump.fun" target="_blank" rel="noopener">BUY <span class="tk">$LABRAT</span></a>
+        <a class="btn btn-chart" id="chart-main" href="https://dexscreener.com/solana" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M4 17l5-6 4 4 6-8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7h5v5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          CHART
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================= RIGHT RAIL: what it does ======================= -->
+  <aside class="rail rail-right">
 
     <section class="panel lab" id="lab">
       <div class="panel-head">
-        <span class="dot pulse"></span><h2>LIVE EXPERIMENT</h2>
+        <span class="dot pulse"></span><h2>LAB CAM</h2>
         <span class="grow"></span>
         <span class="tag-live">LIVE</span>
         <button class="ico" id="fs-btn" title="fullscreen" aria-label="fullscreen">
           <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
         </button>
       </div>
-
       <div class="cam-bar" id="cam-bar">
-        <span id="cam-label">LAB CAM 01 — BANANA TRENCHER</span>
+        <span id="cam-label">LAB CAM 01</span>
         <button class="ico small" id="cam-x" title="hide overlay" aria-label="hide overlay">
           <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2"/></svg>
         </button>
       </div>
-
       <div class="video-wrap" id="video-wrap">
         <video id="cam" autoplay muted loop playsinline preload="auto"></video>
         <div class="no-signal" id="no-signal">
           <span class="ns-title">NO SIGNAL</span>
-          <span class="ns-sub">drop a looping clip at <code>public/media/lab.mp4</code></span>
+          <span class="ns-sub">drop a clip at <code>public/media/lab.mp4</code></span>
         </div>
         <div class="scanlines" aria-hidden="true"></div>
         <div class="vignette" aria-hidden="true"></div>
         <div class="rec" aria-hidden="true"><span class="dot pulse"></span>REC</div>
       </div>
-
       <div class="video-bar">
         <button class="ico" id="play-btn" aria-label="pause">
           <svg id="ic-pause" viewBox="0 0 24 24"><path d="M8 5h3v14H8zM13 5h3v14h-3z" fill="currentColor"/></svg>
@@ -83,140 +171,48 @@
         </button>
         <span class="live-mini"><span class="dot pulse"></span>LIVE</span>
         <span class="grow"></span>
-        <span class="quality">1080p</span>
         <button class="ico" id="fs-btn2" aria-label="fullscreen">
           <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
         </button>
       </div>
     </section>
 
-    <section class="stats" id="stats">
-      <div class="panel stat">
-        <span class="stat-label">TOTAL SUPPLY</span>
-        <span class="stat-value" id="s-supply">—</span>
-        <span class="stat-sub" id="s-supply-sub">$LABRAT</span>
-      </div>
-      <div class="panel stat">
+    <section class="panel statgrid" id="stats">
+      <div class="stat">
         <span class="stat-label">MARKET CAP</span>
         <span class="stat-value" id="s-mc">—</span>
         <span class="stat-sub" id="s-mc-chg">awaiting launch</span>
       </div>
-      <div class="panel stat">
+      <div class="stat">
         <span class="stat-label">HOLDERS</span>
         <span class="stat-value" id="s-holders">—</span>
         <span class="stat-sub up" id="s-holders-sub"></span>
         <canvas class="spark" id="spark" width="260" height="52"></canvas>
       </div>
-      <div class="panel stat">
-        <span class="stat-label"><svg class="drop" viewBox="0 0 24 24"><path d="M12 3s6 7 6 11a6 6 0 1 1-12 0c0-4 6-11 6-11z" fill="currentColor"/></svg>LIQUIDITY</span>
+      <div class="stat">
+        <span class="stat-label">LIQUIDITY</span>
         <span class="stat-value" id="s-liq">—</span>
         <span class="stat-sub" id="s-liq-sub">awaiting launch</span>
       </div>
-    </section>
-
-    <div class="row-2">
-      <section class="panel cta" id="about">
-        <div class="cta-top">
-          <img class="logo-mark big" src="/media/logo.jpg" alt="" width="800" height="800">
-          <div class="cta-copy">
-            <h3 id="about-title">FUELING THE FUTURE. IN THE LAB.</h3>
-            <p id="about-body"></p>
-          </div>
-        </div>
-        <div class="cta-buttons">
-          <a class="btn btn-buy big" id="buy-main" href="https://pump.fun" target="_blank" rel="noopener">BUY <span class="tk">$LABRAT</span></a>
-          <a class="btn btn-chart" id="chart-main" href="https://dexscreener.com/solana" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24"><path d="M4 17l5-6 4 4 6-8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7h5v5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            CHART
-          </a>
-        </div>
-      </section>
-
-      <section class="panel meta">
-        <div class="meta-block">
-          <span class="meta-label">CONTRACT</span>
-          <div class="meta-row">
-            <span class="ca" id="ca-text">not set yet</span>
-            <button class="ico copy" id="copy-ca" title="copy contract address" aria-label="copy contract address">
-              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M15 5H6a2 2 0 0 0-2 2v9" fill="none" stroke="currentColor" stroke-width="1.9"/></svg>
-            </button>
-          </div>
-        </div>
-        <div class="meta-block">
-          <span class="meta-label">CHAIN</span>
-          <div class="meta-row">
-            <svg class="sol" viewBox="0 0 32 26" aria-hidden="true">
-              <defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00ffa3"/><stop offset="1" stop-color="#dc1fff"/></linearGradient></defs>
-              <path d="M6.4 19.6h25.1l-5.9 5.6H.5zM6.4 .8h25.1l-5.9 5.6H.5zM25.6 10.2H.5l5.9 5.6h25.1z" fill="url(#sg)"/>
-            </svg>
-            <span class="chain-name">SOLANA</span>
-          </div>
-        </div>
-        <div class="meta-block">
-          <span class="meta-label">EXPERIMENT UPTIME</span>
-          <div class="meta-row"><span class="uptime" id="uptime">—</span></div>
-        </div>
-      </section>
-    </div>
-  </div>
-
-  <!-- ============================== RIGHT ============================== -->
-  <div class="col">
-
-    <section class="panel sensors" id="sensors">
-      <div class="panel-head">
-        <svg class="chip" viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="7" y="7" width="10" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
-          <path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-        <h2>AI SENSORS — BIOELECTRIC ARRAY</h2>
-        <span class="grow"></span>
-        <span class="update">UPDATE: <b id="sensor-clock">--:--:--</b></span>
-        <span class="dot pulse"></span>
-      </div>
-
-      <div class="table-scroll">
-        <table class="sensor-table">
-          <thead>
-            <tr>
-              <th class="c-clip">CLIP</th>
-              <th class="c-mv">ELECTRICAL IMPULSE<i>(mV)</i></th>
-              <th class="c-wave">WAVEFORM</th>
-            </tr>
-          </thead>
-          <tbody id="sensor-rows"></tbody>
-        </table>
+      <div class="stat">
+        <span class="stat-label">SUPPLY</span>
+        <span class="stat-value" id="s-supply">—</span>
+        <span class="stat-sub" id="s-supply-sub">$LABRAT</span>
       </div>
     </section>
 
     <div class="probe-row">
       <section class="panel probe">
-        <div class="panel-head">
-          <svg class="chip" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M14 14.9V5.5a2 2 0 1 0-4 0v9.4a4 4 0 1 0 4 0z" fill="none" stroke="currentColor" stroke-width="1.7"/>
-            <path d="M12 9.5v5.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-          </svg>
-          <h2>PROBE A — CHAMBER TEMP</h2>
-          <span class="grow"></span>
-          <span class="dot pulse"></span>
-        </div>
         <div class="probe-body">
+          <span class="probe-tag">CHAMBER TEMP</span>
           <div class="probe-read"><b id="p-temp">—</b><i>°C</i></div>
           <canvas class="probe-spark" id="temp-spark" width="300" height="70"></canvas>
           <span class="probe-note" id="p-temp-note">awaiting probe</span>
         </div>
       </section>
-
       <section class="panel probe">
-        <div class="panel-head">
-          <svg class="chip" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 3s6 7 6 11a6 6 0 1 1-12 0c0-4 6-11 6-11z" fill="none" stroke="currentColor" stroke-width="1.7"/>
-          </svg>
-          <h2>PROBE B — HUMIDITY</h2>
-          <span class="grow"></span>
-          <span class="dot pulse"></span>
-        </div>
         <div class="probe-body">
+          <span class="probe-tag">HUMIDITY</span>
           <div class="probe-read"><b id="p-hum">—</b><i>%</i></div>
           <canvas class="probe-spark" id="hum-spark" width="300" height="70"></canvas>
           <span class="probe-note" id="p-hum-note">awaiting probe</span>
@@ -224,33 +220,21 @@
       </section>
     </div>
 
-    <section class="panel feedpanel" id="feed">
+    <section class="panel bookpanel" id="book">
       <div class="panel-head">
         <svg class="chip" viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="7" y="7" width="10" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
-          <path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
         </svg>
-        <h2>TOKEN ANALYSIS FEED</h2>
+        <h2>TRANSACTIONS</h2>
         <span class="grow"></span>
-        <span class="dot pulse"></span><span class="live-mini">LIVE</span>
+        <span class="book-sum" id="book-sum"></span>
       </div>
-
-      <div class="feed-head">
-        <span>TOKEN</span><span>TX HASH</span><span>ANALYSIS RESULT</span><span>AI CONFIDENCE</span><span class="r">TIME</span>
-      </div>
-      <div class="feed-rows" id="feed-rows"></div>
-      <div class="feed-foot">
-        <span id="scan-text">SCANNING BLOCKCHAIN FOR NEW TOKENS...</span>
-        <span class="spinner" aria-hidden="true"></span>
+      <div class="book-rows" id="book-rows">
+        <div class="book-empty">nothing bought yet</div>
       </div>
     </section>
-  </div>
+  </aside>
 </main>
-
-<div class="ambient ambient-front" aria-hidden="true">
-  <div class="motes" id="motes-front"></div>
-  <div class="sheen"></div>
-</div>
 
 <footer class="footbar" id="phase">
   <span class="dot pulse"></span>
