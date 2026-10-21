@@ -1,0 +1,22 @@
+# Render blueprint. Note the plan: the free tier spins a service down when idle,
+# which stops the feed and the buyer, and it has no persistent disk at all.
+services:
+  - type: web
+    name: labrat-lab
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: HELIUS_API_KEY
+        sync: false
+      - key: WALLET_SECRET
+        sync: false
+    disk:
+      name: data
+      mountPath: /app/data
+      sizeGB: 1

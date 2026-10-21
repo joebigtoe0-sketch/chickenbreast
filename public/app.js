@@ -165,7 +165,7 @@ function drawSpark(points) {
   ctx.beginPath();
   ctx.moveTo(x(0), y(points[0]));
   for (let i = 1; i < points.length; i++) ctx.lineTo(x(i), y(points[i]));
-  ctx.strokeStyle = "#57c98a";
+  ctx.strokeStyle = "#d9762e";
   ctx.lineWidth = 1.3;
   ctx.lineJoin = "round";
   ctx.stroke();
@@ -174,8 +174,8 @@ function drawSpark(points) {
   ctx.lineTo(0, h);
   ctx.closePath();
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "rgba(87,201,138,.28)");
-  g.addColorStop(1, "rgba(87,201,138,0)");
+  g.addColorStop(0, "rgba(217,118,46,.32)");
+  g.addColorStop(1, "rgba(217,118,46,0)");
   ctx.fillStyle = g;
   ctx.fill();
 }
@@ -291,7 +291,7 @@ function drawProbe(canvas, probe) {
   ctx.beginPath();
   ctx.moveTo(x(0), y(b[0]));
   for (let i = 1; i < b.length; i++) ctx.lineTo(x(i), y(b[i]));
-  ctx.strokeStyle = "#57c98a";
+  ctx.strokeStyle = "#d9762e";
   ctx.lineWidth = 1.3;
   ctx.lineJoin = "round";
   ctx.stroke();
@@ -300,8 +300,8 @@ function drawProbe(canvas, probe) {
   ctx.lineTo(0, h);
   ctx.closePath();
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "rgba(87,201,138,.28)");
-  g.addColorStop(1, "rgba(87,201,138,0)");
+  g.addColorStop(0, "rgba(217,118,46,.32)");
+  g.addColorStop(1, "rgba(217,118,46,0)");
   ctx.fillStyle = g;
   ctx.fill();
 }
@@ -333,10 +333,10 @@ function drawWaves() {
       const y = mid - buf[i] * amp;
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
-    ctx.strokeStyle = w.locked ? "#7bf0a8" : "#3f7a58";
+    ctx.strokeStyle = w.locked ? "#ffa85f" : "#7a5540";
     ctx.lineWidth = 1.5;
     ctx.lineJoin = "round";
-    ctx.shadowColor = "rgba(87,201,138,.5)";
+    ctx.shadowColor = "rgba(217,118,46,.55)";
     ctx.shadowBlur = w.locked ? 4 : 0;
     ctx.stroke();
     ctx.shadowBlur = 0;
@@ -666,7 +666,7 @@ function wireControls() {
       if (!target) return;
       e.preventDefault();
       target.scrollIntoView({ behavior: "smooth", block: "center" });
-      target.animate([{ borderColor: "#57c98a" }, { borderColor: "" }], { duration: 1100, easing: "ease-out" });
+      target.animate([{ borderColor: "#d9762e" }, { borderColor: "" }], { duration: 1100, easing: "ease-out" });
     });
   }
 }
@@ -707,9 +707,9 @@ function startNeuralField() {
     const s = sprite.getContext("2d");
     const g = s.createRadialGradient(32, 32, 0, 32, 32, 32);
     g.addColorStop(0, "rgba(255,255,255,1)");
-    g.addColorStop(0.22, "rgba(150,255,190,.55)");
-    g.addColorStop(0.55, "rgba(87,201,138,.18)");
-    g.addColorStop(1, "rgba(87,201,138,0)");
+    g.addColorStop(0.22, "rgba(255,208,152,.6)");
+    g.addColorStop(0.55, "rgba(217,118,46,.22)");
+    g.addColorStop(1, "rgba(217,118,46,0)");
     s.fillStyle = g;
     s.fillRect(0, 0, 64, 64);
   }
@@ -772,7 +772,7 @@ function startNeuralField() {
     last = now;
     const t = now / 1000;
 
-    ctx.fillStyle = "#050b07";
+    ctx.fillStyle = "#0b0705";
     ctx.fillRect(0, 0, w, h);
 
     for (const n of nodes) {
@@ -792,7 +792,7 @@ function startNeuralField() {
         const d2 = dx * dx + dy * dy;
         if (d2 > LINK * LINK) continue;
         const alpha = (1 - Math.sqrt(d2) / LINK) * 0.17;
-        ctx.strokeStyle = "rgba(87,201,138," + alpha.toFixed(3) + ")";
+        ctx.strokeStyle = "rgba(205,110,40," + alpha.toFixed(3) + ")";
         ctx.beginPath();
         ctx.moveTo(p.x, p.y);
         ctx.lineTo(q.x, q.y);
@@ -821,7 +821,7 @@ function startNeuralField() {
       const tx = s.a.x + (s.b.x - s.a.x) * tailT;
       const ty = s.a.y + (s.b.y - s.a.y) * tailT;
       ctx.globalAlpha = Math.sin(s.t * Math.PI) * 0.9;
-      ctx.strokeStyle = s.gold ? "rgba(245,207,39,.85)" : "rgba(150,255,190,.8)";
+      ctx.strokeStyle = s.gold ? "rgba(240,186,52,.9)" : "rgba(255,200,150,.85)";
       ctx.lineWidth = s.gold ? 2 : 1.4;
       ctx.beginPath();
       ctx.moveTo(tx, ty);
@@ -841,7 +841,7 @@ function startNeuralField() {
   window.addEventListener("resize", resize);
   if (reduced) {
     // one static frame, no loop
-    ctx.fillStyle = "#050b07";
+    ctx.fillStyle = "#0b0705";
     ctx.fillRect(0, 0, w, h);
     for (const n of nodes) {
       const s = n.r * 9;

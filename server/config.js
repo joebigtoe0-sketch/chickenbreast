@@ -24,11 +24,22 @@ export const HISTORY_FILE = path.join(DATA_DIR, "history.json");
 export const TRADES_FILE = path.join(DATA_DIR, "trades.json");
 
 /** Env-level settings: secrets and host wiring. Never editable from the panel. */
+/**
+ * Are we hosted, or on a laptop?
+ *
+ * This used to key off RAILWAY_ENVIRONMENT, which meant the server bound
+ * 127.0.0.1 on every OTHER host and was simply unreachable. NODE_ENV is the one
+ * signal every container platform can set (and the Dockerfile sets it), so it
+ * beats maintaining a list of provider-specific variables.
+ */
+const hosted = process.env.NODE_ENV === "production";
+
 export const env = {
-  // Railway/Heroku inject PORT; locally we bind loopback only so the LAN can't
-  // reach /admin. Set HOST=0.0.0.0 to expose it deliberately.
-  port: process.env.RAILWAY_ENVIRONMENT ? num("PORT", num("SITE_PORT", 8787)) : num("SITE_PORT", num("PORT", 8787)),
-  host: str("HOST", process.env.RAILWAY_ENVIRONMENT ? "0.0.0.0" : "127.0.0.1"),
+  // Hosted: the platform's injected PORT wins and we bind every interface.
+  // Local: SITE_PORT wins and we stay on loopback, so the LAN cannot reach
+  // /admin. HOST always overrides, for a VPS sitting behind nginx.
+  port: hosted ? num("PORT", num("SITE_PORT", 8787)) : num("SITE_PORT", num("PORT", 8787)),
+  host: str("HOST", hosted ? "0.0.0.0" : "127.0.0.1"),
   adminPassword: str("ADMIN_PASSWORD"),
   heliusKey: str("HELIUS_API_KEY"),
   rpcUrl:
@@ -45,7 +56,7 @@ const DEFAULTS = {
   tokenSymbol: "LABRAT",
   tagline: "THE LAB TOKEN",
   videoUrl: "/media/lab.mp4",
-  camLabel: "LAB CAM 01 — BANANA TRENCHER",
+  camLabel: "LAB CAM 01 — SAUSAGE TRENCHER",
   aboutTitle: "FUELING THE FUTURE. IN THE LAB.",
   aboutBody:
     "$LABRAT is a community driven experiment.\nWe don't follow the market, we test it.\n6 clips. 1 goal. Unlimited potential.",

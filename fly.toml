@@ -1,0 +1,36 @@
+# fly launch --no-deploy  then  fly deploy
+app = "labrat-lab"
+primary_region = "ams"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "8787"
+
+[http_service]
+  internal_port = 8787
+  force_https = true
+  # THE IMPORTANT PART: this is a bot, not a website that can nap. If Fly is
+  # allowed to suspend the machine, the PumpPortal feed drops, the sensor clock
+  # stops and open positions stop being watched for their stop loss.
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "20s"
+    method = "GET"
+    path = "/health"
+
+# fly volumes create labrat_data --size 1 --region ams
+[[mounts]]
+  source = "labrat_data"
+  destination = "/app/data"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

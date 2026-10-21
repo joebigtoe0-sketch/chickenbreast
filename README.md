@@ -188,11 +188,11 @@ in it is in git; back up `config.json` if you have tuned the copy.
 
 ### Deploying
 
-It is a plain Node server with no build step — `npm start` is the whole thing.
-On Railway: set `ADMIN_PASSWORD`, `HELIUS_API_KEY`, and `HOST=0.0.0.0` (the
-injected `PORT` is picked up automatically), and mount a volume at `data/` so the
-contract address and wallet survive redeploys. Put it behind https before you
-paste a key into `/admin`.
+A plain Node server with no build step. It needs a host that runs a persistent
+process with a mounted disk — Fly, Render, Koyeb, or Docker on a VPS. Netlify,
+Vercel and Cloudflare Pages cannot run it at all: their functions are
+request-scoped, so there is nowhere for the PumpPortal socket, the timers or the
+position book to live. See DEPLOY.md.
 
 ### The feed watchdog
 
