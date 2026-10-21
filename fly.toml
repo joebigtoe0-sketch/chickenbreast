@@ -1,5 +1,5 @@
 # fly launch --no-deploy  then  fly deploy
-app = "sausage-trader"
+app = "sausage-bot"
 primary_region = "ams"
 
 [build]
@@ -26,9 +26,9 @@ primary_region = "ams"
     method = "GET"
     path = "/health"
 
-# fly volumes create labrat_data --size 1 --region ams
+# fly volumes create sausage_data --size 1 --region ams
 [[mounts]]
-  source = "labrat_data"
+  source = "sausage_data"
   destination = "/app/data"
 
 [[vm]]
