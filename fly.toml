@@ -1,5 +1,5 @@
 # fly launch --no-deploy  then  fly deploy
-app = "labrat-lab"
+app = "sausage-trader"
 primary_region = "ams"
 
 [build]

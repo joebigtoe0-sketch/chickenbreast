@@ -38,7 +38,7 @@ that is a rewrite of the whole server, not a deploy target.)
 
 ```bash
 fly launch --no-deploy          # accept the existing fly.toml
-fly volumes create labrat_data --size 1 --region ams
+fly volumes create labrat_data --size 1 --region ams   # name kept: the live volume already uses it
 fly secrets set ADMIN_PASSWORD=... HELIUS_API_KEY=... WALLET_SECRET=...
 fly deploy
 ```
@@ -60,12 +60,12 @@ disk at all, which breaks both requirements above. `starter` is the floor.
 Most control, most work: you own nginx, TLS and the restart policy.
 
 ```bash
-docker build -t labrat .
+docker build -t sausage .
 docker run -d --restart=always -p 127.0.0.1:8787:8787 \
-  -v /srv/labrat-data:/app/data \
+  -v /srv/sausage-data:/app/data \
   -e NODE_ENV=production -e ADMIN_PASSWORD=... \
   -e HELIUS_API_KEY=... -e WALLET_SECRET=... \
-  --name labrat labrat
+  --name sausage sausage
 ```
 
 Then put Caddy or nginx in front for TLS. Keep the container bound to

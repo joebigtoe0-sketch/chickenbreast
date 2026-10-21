@@ -1,5 +1,5 @@
 /* ==================================================================== *
- *  $LABRAT front end
+ *  $SAUSAGE front end
  *  One websocket feeds everything: sensors at 1Hz, token stats every
  *  ~20s, and launch rows as they come off pump.fun.
  * ==================================================================== */
@@ -64,7 +64,7 @@ function toast(msg) {
 /* ------------------------------------------------------------ config --- */
 function applyConfig(c) {
   state.config = c;
-  const tk = `$${c.tokenSymbol || "LABRAT"}`;
+  const tk = `$${c.tokenSymbol || "SAUSAGE"}`;
 
   $("logo-name").textContent = tk;
   $("logo-tag").textContent = c.tagline || "";
@@ -73,7 +73,7 @@ function applyConfig(c) {
   $("about-title").textContent = c.aboutTitle || "";
   $("about-body").textContent = c.aboutBody || "";
   $("s-supply-sub").textContent = tk;
-  document.title = `${tk} — ${c.tagline || "THE LAB TOKEN"}`;
+  document.title = `${tk} — ${c.tagline || "THE SAUSAGE BOT"}`;
 
   for (const id of ["buy-top", "buy-main"]) {
     const el = $(id);

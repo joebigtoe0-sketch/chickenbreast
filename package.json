@@ -2,7 +2,7 @@
   "name": "chickenbreast",
   "version": "1.0.0",
   "private": true,
-  "description": "$LABRAT — live lab dashboard for a pump.fun token: sensor feed, launch analysis feed, auto-buyer.",
+  "description": "$SAUSAGE — live lab dashboard for a pump.fun token: sensor feed, launch analysis feed, auto-buyer.",
   "type": "module",
   "main": "server/index.js",
   "scripts": {

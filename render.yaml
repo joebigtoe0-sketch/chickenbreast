@@ -2,7 +2,7 @@
 # which stops the feed and the buyer, and it has no persistent disk at all.
 services:
   - type: web
-    name: labrat-lab
+    name: sausage-trader
     runtime: docker
     dockerfilePath: ./Dockerfile
     plan: starter

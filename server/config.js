@@ -52,14 +52,14 @@ export const env = {
 
 const DEFAULTS = {
   contractAddress: "",
-  tokenName: "LABRAT",
-  tokenSymbol: "LABRAT",
-  tagline: "THE LAB TOKEN",
+  tokenName: "SAUSAGE BOT",
+  tokenSymbol: "SAUSAGE",
+  tagline: "THE SAUSAGE BOT",
   videoUrl: "/media/lab.mp4",
   camLabel: "LAB CAM 01 — SAUSAGE TRENCHER",
   aboutTitle: "FUELING THE FUTURE. IN THE LAB.",
   aboutBody:
-    "$LABRAT is a community driven experiment.\nWe don't follow the market, we test it.\n6 clips. 1 goal. Unlimited potential.",
+    "$SAUSAGE is a community driven experiment.\nWe don't follow the market, we test it.\n6 clips. 1 goal. Unlimited potential.",
   phaseLabel: "Experiment Phase 1: Neural Protein Interface... IN PROGRESS",
   twitter: "https://x.com/cbtonsol",
   telegram: "",

@@ -1,4 +1,4 @@
-# chickenbreast — the $LABRAT lab dashboard
+# sausage bot — the $SAUSAGE lab dashboard
 
 A one-screen site for a pump.fun coin: a looping lab cam, six sensor clips on the
 subject, live token stats pulled off the chain, every pump.fun launch scored by
